@@ -10,6 +10,16 @@
 		BB7489D21C22D89E00CC9DBE /* NetKit.h in Headers */ = {isa = PBXBuildFile; fileRef = BB7489D11C22D89E00CC9DBE /* NetKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BB7489D91C22D89E00CC9DBE /* NetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB7489CE1C22D89E00CC9DBE /* NetKit.framework */; };
 		BB7489DE1C22D89E00CC9DBE /* NetKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489DD1C22D89E00CC9DBE /* NetKitTests.swift */; };
+		BB7489F11C22D93E00CC9DBE /* Exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = BB7489E81C22D93E00CC9DBE /* Exceptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BB7489F21C22D93E00CC9DBE /* Exceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7489E91C22D93E00CC9DBE /* Exceptions.m */; };
+		BB7489F31C22D93E00CC9DBE /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EA1C22D93E00CC9DBE /* Extensions.swift */; };
+		BB7489F41C22D93E00CC9DBE /* ImageMimePart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EB1C22D93E00CC9DBE /* ImageMimePart.swift */; };
+		BB7489F51C22D93E00CC9DBE /* Intent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EC1C22D93E00CC9DBE /* Intent.swift */; };
+		BB7489F61C22D93E00CC9DBE /* JSONMimePart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489ED1C22D93E00CC9DBE /* JSONMimePart.swift */; };
+		BB7489F71C22D93E00CC9DBE /* MimeMultipart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EE1C22D93E00CC9DBE /* MimeMultipart.swift */; };
+		BB7489F81C22D93E00CC9DBE /* MimePart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EF1C22D93E00CC9DBE /* MimePart.swift */; };
+		BB7489F91C22D93E00CC9DBE /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489F01C22D93E00CC9DBE /* Request.swift */; };
+		BB7489FC1C22DDF500CC9DBE /* PublicHeaders.h in Headers */ = {isa = PBXBuildFile; fileRef = BB7489FB1C22DD1500CC9DBE /* PublicHeaders.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +39,16 @@
 		BB7489D81C22D89E00CC9DBE /* NetKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB7489DD1C22D89E00CC9DBE /* NetKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetKitTests.swift; sourceTree = "<group>"; };
 		BB7489DF1C22D89E00CC9DBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BB7489E81C22D93E00CC9DBE /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exceptions.h; sourceTree = "<group>"; };
+		BB7489E91C22D93E00CC9DBE /* Exceptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Exceptions.m; sourceTree = "<group>"; };
+		BB7489EA1C22D93E00CC9DBE /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		BB7489EB1C22D93E00CC9DBE /* ImageMimePart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageMimePart.swift; sourceTree = "<group>"; };
+		BB7489EC1C22D93E00CC9DBE /* Intent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Intent.swift; sourceTree = "<group>"; };
+		BB7489ED1C22D93E00CC9DBE /* JSONMimePart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONMimePart.swift; sourceTree = "<group>"; };
+		BB7489EE1C22D93E00CC9DBE /* MimeMultipart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimeMultipart.swift; sourceTree = "<group>"; };
+		BB7489EF1C22D93E00CC9DBE /* MimePart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimePart.swift; sourceTree = "<group>"; };
+		BB7489F01C22D93E00CC9DBE /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
+		BB7489FB1C22DD1500CC9DBE /* PublicHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PublicHeaders.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,6 +93,16 @@
 			children = (
 				BB7489D11C22D89E00CC9DBE /* NetKit.h */,
 				BB7489D31C22D89E00CC9DBE /* Info.plist */,
+				BB7489F01C22D93E00CC9DBE /* Request.swift */,
+				BB7489EC1C22D93E00CC9DBE /* Intent.swift */,
+				BB7489EB1C22D93E00CC9DBE /* ImageMimePart.swift */,
+				BB7489ED1C22D93E00CC9DBE /* JSONMimePart.swift */,
+				BB7489EE1C22D93E00CC9DBE /* MimeMultipart.swift */,
+				BB7489EF1C22D93E00CC9DBE /* MimePart.swift */,
+				BB7489EA1C22D93E00CC9DBE /* Extensions.swift */,
+				BB7489E81C22D93E00CC9DBE /* Exceptions.h */,
+				BB7489E91C22D93E00CC9DBE /* Exceptions.m */,
+				BB7489FB1C22DD1500CC9DBE /* PublicHeaders.h */,
 			);
 			path = NetKit;
 			sourceTree = "<group>";
@@ -94,6 +124,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB7489D21C22D89E00CC9DBE /* NetKit.h in Headers */,
+				BB7489FC1C22DDF500CC9DBE /* PublicHeaders.h in Headers */,
+				BB7489F11C22D93E00CC9DBE /* Exceptions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,6 +226,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB7489F21C22D93E00CC9DBE /* Exceptions.m in Sources */,
+				BB7489F91C22D93E00CC9DBE /* Request.swift in Sources */,
+				BB7489F81C22D93E00CC9DBE /* MimePart.swift in Sources */,
+				BB7489F51C22D93E00CC9DBE /* Intent.swift in Sources */,
+				BB7489F31C22D93E00CC9DBE /* Extensions.swift in Sources */,
+				BB7489F41C22D93E00CC9DBE /* ImageMimePart.swift in Sources */,
+				BB7489F71C22D93E00CC9DBE /* MimeMultipart.swift in Sources */,
+				BB7489F61C22D93E00CC9DBE /* JSONMimePart.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,7 +273,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -257,6 +296,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -281,7 +321,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -298,6 +337,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -308,6 +348,7 @@
 		BB7489E31C22D89E00CC9DBE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -318,12 +359,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.hibu.NetKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		BB7489E41C22D89E00CC9DBE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
