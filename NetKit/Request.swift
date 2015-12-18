@@ -8,9 +8,9 @@
 
 import Foundation
 
-typealias Response = (object: Any?, httpResponse: NSHTTPURLResponse?, error: NSError?) -> Void
-typealias Completion = () -> Void
-typealias Work = (Completion?) -> Void
+public typealias Response = (object: Any?, httpResponse: NSHTTPURLResponse?, error: NSError?) -> Void
+public typealias Completion = () -> Void
+public typealias Work = (Completion?) -> Void
 
 public let NETRequestDidStartNotification = "NETRequestDidStartNotification"
 public let NETRequestDidEndNotification = "NETRequestDidEndNotification"
@@ -40,25 +40,25 @@ public func executeOnMainThread( closure: () -> Void ) {
 // MARK: - class Request -
 
 public class Request : CustomStringConvertible, CustomDebugStringConvertible {
-    let session: NSURLSession
-    let method: String
-    let uid: Int
+    public let session: NSURLSession
+    public let method: String
+    public let uid: Int
 
-    var headers = Dictionary<String, Any>()
-    var urlComponents = NSURLComponents()
-    var body: MimePart?
-    var completesOnBackgroundThread = false
-    var quiet: Bool = false
-    var logRawResponseData: Bool = false
+    public var headers = Dictionary<String, Any>()
+    public var urlComponents = NSURLComponents()
+    public var body: MimePart?
+    public var completesOnBackgroundThread = false
+    public var quiet: Bool = false
+    public var logRawResponseData: Bool = false
     
-    internal var flags: [String:Any]?
+    public var flags: [String:Any]?
     
     private (set) public var executing = false
     private (set) public var cancelled = false
     private var dataTask: NSURLSessionDataTask?
     
 // MARK: - init / deinit -
-    init(aSession: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
+    public init(aSession: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
         session = aSession
         method = httpMethod
         uid = assignUID()
@@ -77,11 +77,11 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
     }
 
 // MARK: - getters / setters -
-    func buildUrl(componentsBlock: NSURLComponents -> Void) {
+    public func buildUrl(componentsBlock: NSURLComponents -> Void) {
         componentsBlock(urlComponents)
     }
     
-    var urlString: String? {
+    public var urlString: String? {
         get {
             return urlComponents.URL?.absoluteString
         }
@@ -94,7 +94,7 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
         }
     }
     
-    var url: NSURL? {
+    public var url: NSURL? {
         get {
             return urlComponents.URL
         }
@@ -105,13 +105,13 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
         }
     }
     
-    func addHeaders(newHeaders: [String:Any]) {
+    public func addHeaders(newHeaders: [String:Any]) {
         headers += newHeaders
     }
     
 // MARK: - API -
     
-    func start(completion: Response) {
+    public func start(completion: Response) {
         if executing {
             fatalError("start called on a request already started")
         }
@@ -120,30 +120,30 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
         executeControlPointClosure(work)
     }
     
-    func cancel() {
+    public func cancel() {
         cancelled = true
         dataTask?.cancel()
     }
     
  // MARK: - overrides -
     
-    internal func executeControlPointClosure(work: Work) {
+    public func executeControlPointClosure(work: Work) {
         work(nil)
     }
     
-    internal func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?) {
+    public func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?) {
         
     }
     
-    internal func configureRequest() throws {
+    public func configureRequest() throws {
         
     }
     
-    internal func configureURLRequest(urlRequest: NSMutableURLRequest) throws {
+    public func configureURLRequest(urlRequest: NSMutableURLRequest) throws {
         
     }
     
-    internal func sessionDescription() -> String {
+    public func sessionDescription() -> String {
         if let description = self.session.sessionDescription {
             return description;
         }
@@ -155,7 +155,7 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
         return ""
     }
 
-    internal func logRequest() {
+    public func logRequest() {
         let desc = sessionDescription()
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
@@ -168,7 +168,7 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
         }
     }
     
-    internal func logResponse(object: Any?, data: NSData?, httpResponse: NSHTTPURLResponse?, error: NSError?) {
+    public func logResponse(object: Any?, data: NSData?, httpResponse: NSHTTPURLResponse?, error: NSError?) {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             var logRaw = false
             let headers = httpResponse?.allHeaderFields as? [String:String]
