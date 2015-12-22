@@ -84,9 +84,9 @@ internal class IRequest : Request {
     weak var intent: Intent?
     
 // MARK: - init -
-    init(intent: Intent, aSession: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
+    init(intent: Intent, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
         self.intent = intent
-        super.init(aSession: aSession, httpMethod: httpMethod, flags: flags)
+        super.init(session: session, httpMethod: httpMethod, flags: flags)
     }
     
 // MARK: - overrides -
@@ -130,8 +130,12 @@ internal class IRequest : Request {
 // MARK: - Request extension -
 
 public extension Request {
-    public class func requestWithIntent(intent: Intent, aSession: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) -> Request {
-        return IRequest(intent: intent, aSession: aSession, httpMethod: httpMethod, flags: flags)
+    public class func requestWithIntent(intent: Intent?, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) -> Request {
+        if let intent = intent {
+            return IRequest(intent: intent, session: session, httpMethod: httpMethod, flags: flags)
+        } else {
+            return Request(session: session, httpMethod: httpMethod, flags: flags)
+        }
     }
 }
 

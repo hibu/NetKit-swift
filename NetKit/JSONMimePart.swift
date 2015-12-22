@@ -9,6 +9,7 @@
 import Foundation
 
 typealias JSONString = String
+public typealias JSONDictionary = [String:AnyObject]
 
 public class JSONMimePart : MimePart {
     

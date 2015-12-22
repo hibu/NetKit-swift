@@ -58,8 +58,8 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
     private var dataTask: NSURLSessionDataTask?
     
 // MARK: - init / deinit -
-    public init(aSession: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
-        session = aSession
+    public init(session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
+        self.session = session
         method = httpMethod
         uid = assignUID()
         self.flags = flags
