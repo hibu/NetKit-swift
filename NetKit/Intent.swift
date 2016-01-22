@@ -59,7 +59,7 @@ public class Intent {
             session.invalidateAndCancel()
         }
         
-        NSLog("NETIntent \(fullName) - dealloc");
+        NSLog("NETIntent \(fullName) - deinit");
     }
     
 // MARK: - API -

@@ -15,7 +15,7 @@ public typealias Work = (Completion?) -> Void
 public let NETRequestDidStartNotification = "NETRequestDidStartNotification"
 public let NETRequestDidEndNotification = "NETRequestDidEndNotification"
 
-private var gUID = 0
+private var gUID = 1
 internal let lockQueue = dispatch_queue_create("com.hibu.NetKit.Request.lock", nil)
 
 // MARK: - functions -
@@ -39,7 +39,7 @@ public func executeOnMainThread( closure: () -> Void ) {
 
 // MARK: - class Request -
 
-public class Request : CustomStringConvertible, CustomDebugStringConvertible {
+public class Request {
     public let session: NSURLSession
     public let method: String
     public let uid: Int
@@ -72,7 +72,7 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
     
     deinit {
         if !quiet {
-            NSLog("\(self) - dealloc")
+            NSLog("\(self.description) - deinit")
         }
     }
 
@@ -161,7 +161,7 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             NSLog("\n")
             NSLog("****** \(self.method) REQUEST #\(self.uid) \(desc) ******")
-            NSLog("URL = \(self.url)")
+            NSLog("URL = %@", self.url == nil ? "" : self.url!)
             NSLog("Headers = \(self.headers)")
             NSLog("****** \\REQUEST #\(self.uid) ******")
             NSLog("\n")
@@ -176,7 +176,7 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
             
             NSLog("\n")
             NSLog("****** RESPONSE #\(self.uid) status: \(statusCode) ******")
-            NSLog("URL = \(self.url)")
+            NSLog("URL = %@", self.url == nil ? "" : self.url!)
             NSLog("Headers = \(headers)")
             if let error = error {
                 NSLog("Error = \(error)")
@@ -425,16 +425,19 @@ public class Request : CustomStringConvertible, CustomDebugStringConvertible {
             completion()
         }
     }
-    
+
+}
+
+extension Request : CustomStringConvertible {
     public var description : String {
-        return "\(self.dynamicType) - \(url)"
+        return "\(self.dynamicType) #\(uid)"
     }
-    
+}
+
+extension Request : CustomDebugStringConvertible {
     public var debugDescription : String {
         return "\(self.dynamicType) #\(uid) (\(unsafeAddressOf(self))) - \(url)"
     }
-
-
 }
 
 

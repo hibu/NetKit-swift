@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BB48CC6C1C4E3D2F00209210 /* MockRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB48CC6B1C4E3D2F00209210 /* MockRequest.swift */; };
 		BB7489D21C22D89E00CC9DBE /* NetKit.h in Headers */ = {isa = PBXBuildFile; fileRef = BB7489D11C22D89E00CC9DBE /* NetKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BB7489D91C22D89E00CC9DBE /* NetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB7489CE1C22D89E00CC9DBE /* NetKit.framework */; };
 		BB7489DE1C22D89E00CC9DBE /* NetKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489DD1C22D89E00CC9DBE /* NetKitTests.swift */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BB48CC6B1C4E3D2F00209210 /* MockRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
 		BB7489CE1C22D89E00CC9DBE /* NetKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB7489D11C22D89E00CC9DBE /* NetKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetKit.h; sourceTree = "<group>"; };
 		BB7489D31C22D89E00CC9DBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 				BB7489D11C22D89E00CC9DBE /* NetKit.h */,
 				BB7489D31C22D89E00CC9DBE /* Info.plist */,
 				BB7489F01C22D93E00CC9DBE /* Request.swift */,
+				BB48CC6B1C4E3D2F00209210 /* MockRequest.swift */,
 				BB7489EC1C22D93E00CC9DBE /* Intent.swift */,
 				BB7489EB1C22D93E00CC9DBE /* ImageMimePart.swift */,
 				BB7489ED1C22D93E00CC9DBE /* JSONMimePart.swift */,
@@ -228,6 +231,7 @@
 			files = (
 				BB7489F21C22D93E00CC9DBE /* Exceptions.m in Sources */,
 				BB7489F91C22D93E00CC9DBE /* Request.swift in Sources */,
+				BB48CC6C1C4E3D2F00209210 /* MockRequest.swift in Sources */,
 				BB7489F81C22D93E00CC9DBE /* MimePart.swift in Sources */,
 				BB7489F51C22D93E00CC9DBE /* Intent.swift in Sources */,
 				BB7489F31C22D93E00CC9DBE /* Extensions.swift in Sources */,
@@ -419,6 +423,7 @@
 				BB7489E41C22D89E00CC9DBE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BB7489E51C22D89E00CC9DBE /* Build configuration list for PBXNativeTarget "NetKitTests" */ = {
 			isa = XCConfigurationList;
@@ -427,6 +432,7 @@
 				BB7489E71C22D89E00CC9DBE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
