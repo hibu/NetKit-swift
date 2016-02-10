@@ -183,7 +183,6 @@ public class Request {
             }
             
             var size = 0
-            let encoding = headers?["Content-Encoding"]
             if let length = headers?["Content-Length"] {
                 if let sizeInt = Int(length) {
                     size = sizeInt
@@ -197,19 +196,19 @@ public class Request {
             let formatter = NSByteCountFormatter()
             var sizeString = formatter.stringFromByteCount(Int64(size))
             
-            if let encoding = encoding {
+            if let encoding = headers?["Content-Encoding"] {
                 sizeString = "\(encoding) \(sizeString)"
             }
             
-            if let object = object {
-                NSLog("Body (\(sizeString)) = \(object)")
+            if let object = object as? CustomStringConvertible {
+                NSLog("Body (\(sizeString)) = " + object.description)
             } else {
                 logRaw = true
             }
             
             if let data = data where self.logRawResponseData || logRaw {
                 if let dataStr = NSString(data: data, encoding: NSUTF8StringEncoding) {
-                    NSLog("Body (raw, \(sizeString)) = \(dataStr)")
+                    NSLog("Body (raw, \(sizeString)) = %@", dataStr)
                 } else {
                     NSLog("Body (raw, \(sizeString)) = \(data)")
                 }
@@ -403,7 +402,7 @@ public class Request {
         }
         
         if type == "text/html" {
-            return NSString(data: data, encoding: encoding)
+            return NSString(data: data, encoding: encoding) as? String
         }
         
         for (mimeType, closure) in MimePart.subclasses() {
