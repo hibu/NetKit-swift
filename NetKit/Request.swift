@@ -64,6 +64,12 @@ public class Request {
         uid = assignUID()
         self.flags = flags
         
+#if DEBUG
+        quiet = false
+#else
+        quiet = true
+#endif
+        
         buildUrl { components in
             components.scheme = "https"
             components.port = 443
