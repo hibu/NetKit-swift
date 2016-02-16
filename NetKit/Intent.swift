@@ -10,42 +10,42 @@ import Foundation
 
 // MARK: - protocols -
 
-protocol IntentProvider {
+public protocol IntentProvider {
     func sessionCreatedForIntentNamed(name: String) -> NSURLSession
 }
 
-protocol IntentConfigureRequest : IntentProvider {
+public protocol IntentConfigureRequest : IntentProvider {
     func configureRequest(request: Request, intent: Intent, flags: [String:Any]?) throws
 }
 
-protocol IntentConfigureURLRequest : IntentProvider {
+public protocol IntentConfigureURLRequest : IntentProvider {
     func configureURLRequest(urlRequest: NSMutableURLRequest, request: Request, intent: Intent, flags: [String:Any]?) throws
 }
 
-protocol IntentControlPoint : IntentProvider {
+public protocol IntentControlPoint : IntentProvider {
     func controlPoint(intent: Intent, toBeExecuted: (() -> Void) -> Void)
 }
 
-protocol IntentReceivedData : IntentProvider {
+public protocol IntentReceivedData : IntentProvider {
     func receivedData(intent: Intent, data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?)
 }
 
 // MARK: - class Intent -
 
 public class Intent {
-    let name: String
-    let uid: UInt
-    let session: NSURLSession
-    let provider: IntentProvider
+    public let name: String
+    public let uid: UInt
+    public let session: NSURLSession
+    public let provider: IntentProvider
     private var detached_uid: UInt = 0
-    var finishTasksAndInvalidateSessionOnDeinit: Bool = false
+    public var finishTasksAndInvalidateSessionOnDeinit: Bool = false
     
-    var fullName: String {
+    public var fullName: String {
         return "\(name) - \(uid)"
     }
     
 // MARK: - init / deinit -
-    init(name: String, provider: IntentProvider, uid: UInt = 0) {
+    public init(name: String, provider: IntentProvider, uid: UInt = 0) {
         self.name = name
         self.uid = uid
         self.provider = provider
@@ -63,7 +63,7 @@ public class Intent {
     }
     
 // MARK: - API -
-    func detach() -> Intent {
+    public func detach() -> Intent {
         if uid != 0 {
             NSException(name: "IntentDetachException", reason: "Can't detach from a detached Intent", userInfo: nil).raise()
         }
