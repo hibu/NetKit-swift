@@ -84,13 +84,13 @@ internal class IRequest : Request {
     weak var intent: Intent?
     
 // MARK: - init -
-    init(intent: Intent, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
+    init(intent: Intent, session: NSURLSession? = nil, httpMethod: String = "GET", flags: [String:Any]? = nil) {
         self.intent = intent
-        super.init(session: session, httpMethod: httpMethod, flags: flags)
+        super.init(session: session ?? intent.session, httpMethod: httpMethod, flags: flags)
     }
     
 // MARK: - overrides -
-    internal override func executeControlPointClosure(work: Work) {
+    internal override func executeControlPointClosure(work: ControlPoint) {
         if let intent = intent, let provider = intent.provider as? IntentControlPoint {
             provider.controlPoint(intent, toBeExecuted: work)
         } else {
@@ -130,11 +130,11 @@ internal class IRequest : Request {
 // MARK: - Request extension -
 
 public extension Request {
-    public class func requestWithIntent(intent: Intent?, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) -> Request {
+    public class func requestWithIntent(intent: Intent?, session: NSURLSession? = nil, httpMethod: String = "GET", flags: [String:Any]? = nil) -> Request {
         if let intent = intent {
             return IRequest(intent: intent, session: session, httpMethod: httpMethod, flags: flags)
         } else {
-            return Request(session: session, httpMethod: httpMethod, flags: flags)
+            return Request(session: session ?? NSURLSession.sharedSession(), httpMethod: httpMethod, flags: flags)
         }
     }
 }

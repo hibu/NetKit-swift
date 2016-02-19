@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias JSONString = String
+public typealias JSONString = String
 public typealias JSONDictionary = [String:AnyObject]
 public typealias JSONArray = [AnyObject]
 
@@ -24,17 +24,17 @@ public class JSONMimePart : MimePart {
         }
     }
     
-    required public init(jsonData: NSData) throws {
+    public required init(jsonData: NSData) throws {
         self.jsonData = jsonData
         super.init(mimeType: "application/json")
     }
     
-    convenience init(jsonDictionary: NSDictionary) throws {
+    public convenience init(jsonDictionary: NSDictionary) throws {
         let data = try NSJSONSerialization.dataWithJSONObject(jsonDictionary, options: .PrettyPrinted)
         try self.init(jsonData: data)
     }
     
-    convenience init(jsonString: JSONString) throws {
+    public convenience init(jsonString: JSONString) throws {
         if let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding) {
             try self.init(jsonData: data)
         } else {
@@ -43,7 +43,7 @@ public class JSONMimePart : MimePart {
     }
     
     override func dataRepresentation( completion: (data: NSData?) -> Void) {
-        completion(data: self.jsonData)
+        completion(data: jsonData)
     }
     
     override class func mimeTypes() -> [String] {

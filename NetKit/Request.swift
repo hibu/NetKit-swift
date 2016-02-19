@@ -10,7 +10,7 @@ import Foundation
 
 public typealias Response = (object: Any?, httpResponse: NSHTTPURLResponse?, error: NSError?) -> Void
 public typealias Completion = () -> Void
-public typealias Work = (Completion?) -> Void
+public typealias ControlPoint = (Completion?) -> Void
 
 public let NETRequestDidStartNotification = "NETRequestDidStartNotification"
 public let NETRequestDidEndNotification = "NETRequestDidEndNotification"
@@ -56,6 +56,7 @@ public class Request {
     private (set) public var executing = false
     private (set) public var cancelled = false
     private var dataTask: NSURLSessionDataTask?
+    private var _request: Request?
     
 // MARK: - init / deinit -
     public init(session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
@@ -124,6 +125,7 @@ public class Request {
         
         let work = controlPointClosure(completion)
         executeControlPointClosure(work)
+        _request = self
     }
     
     public func cancel() {
@@ -133,7 +135,7 @@ public class Request {
     
  // MARK: - overrides -
     
-    public func executeControlPointClosure(work: Work) {
+    public func executeControlPointClosure(work: ControlPoint) {
         work(nil)
     }
     
@@ -169,6 +171,11 @@ public class Request {
             NSLog("****** \(self.method) REQUEST #\(self.uid) \(desc) ******")
             NSLog("URL = %@", self.url == nil ? "" : self.url!)
             NSLog("Headers = \(self.headers)")
+            self.body?.dataRepresentation { (data) -> Void in
+                if let data = data {
+                    NSLog("Body = \(data)")
+                }
+            }
             NSLog("****** \\REQUEST #\(self.uid) ******")
             NSLog("\n")
         }
@@ -243,12 +250,16 @@ public class Request {
         } else {
             executeOnMainThread(response)
         }
+        
+        _request = nil
     }
     
     private func urlRequest(completion: NSMutableURLRequest? -> Void) {
         guard let url = self.url else { completion(nil); return }
         
         let mRequest = NSMutableURLRequest(URL: url)
+        mRequest.HTTPMethod = self.method
+        
         let group = dispatch_group_create()
         
         if let body = body {
@@ -256,8 +267,10 @@ public class Request {
             body.dataRepresentation { (data: NSData?) -> Void in
                 if let data = data {
                     mRequest.HTTPBody = data
-                    mRequest.setValue("\(data.length)", forHTTPHeaderField:"Content-Length")
-                    mRequest.setValue(body.mimeType, forHTTPHeaderField:"Content-Type")
+                    let length: String = String(format: "%ld", data.length)
+                    let type: String = body.mimeType
+                    mRequest.setValue(length, forHTTPHeaderField:"content-length")
+                    mRequest.setValue(type, forHTTPHeaderField:"content-type")
                 }
                 dispatch_group_leave(group)
             }
@@ -272,7 +285,7 @@ public class Request {
         }
     }
     
-    private func controlPointClosure(responseCompletion: Response) -> Work {
+    private func controlPointClosure(responseCompletion: Response) -> ControlPoint {
         return { (workCompletion: Completion?) -> Void in
             
             let work = self.mainThreadClosure(responseCompletion, workCompletion: workCompletion)
@@ -391,6 +404,12 @@ public class Request {
                 
                 self.completeWithObject(object, data:data, httpResponse:httpResponse, error:error, completion:completion)
             }
+        } else if let error = error {
+            if !self.quiet {
+                self.logResponse(nil, data: nil, httpResponse: nil, error: error)
+            }
+
+            self.completeWithObject(nil, data:nil, httpResponse:nil, error:error, completion:completion)
         }
     }
     
