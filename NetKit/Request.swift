@@ -47,7 +47,7 @@ public class Request {
     public var headers = Dictionary<String, Any>()
     public var urlComponents = NSURLComponents()
     public var body: MimePart?
-    public var completesOnBackgroundThread = false
+    public var completesOnGlobalQueue = false
     public var quiet: Bool = false
     public var logRawResponseData: Bool = false
     
@@ -245,7 +245,7 @@ public class Request {
             completion(object: theObject, httpResponse: theHttpResponse, error: theError)
         }
         
-        if completesOnBackgroundThread {
+        if completesOnGlobalQueue {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), response)
         } else {
             executeOnMainThread(response)
