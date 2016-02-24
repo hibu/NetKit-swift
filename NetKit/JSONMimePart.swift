@@ -26,7 +26,7 @@ public class JSONMimePart : MimePart {
     
     public required init(jsonData: NSData) throws {
         self.jsonData = jsonData
-        super.init(mimeType: "application/json")
+        super.init(mimeType: "application/json;charset=UTF-8")
     }
     
     public convenience init(jsonDictionary: NSDictionary) throws {
