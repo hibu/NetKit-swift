@@ -269,8 +269,7 @@ public class Request {
                     mRequest.HTTPBody = data
                     let length: String = String(format: "%ld", data.length)
                     let type: String = body.mimeType
-                    mRequest.setValue(length, forHTTPHeaderField:"content-length")
-                    mRequest.setValue(type, forHTTPHeaderField:"content-type")
+                    self.addHeaders(["content-length" : length, "content-type" : type])
                 }
                 dispatch_group_leave(group)
             }

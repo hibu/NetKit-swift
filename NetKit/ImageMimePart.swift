@@ -15,12 +15,17 @@ public class ImageMimePart : MimePart {
     required public init(imageData: NSData) throws {
         if let image = UIImage(data: imageData, scale:0) {
             self.image = image
-            super.init(mimeType: "image/*")
+            super.init(mimeType: "image/png")
         } else {
             self.image = UIImage()
-            super.init(mimeType: "image/*")
+            super.init(mimeType: "image/png")
             throw NSCocoaError.init(rawValue: 999)
         }
+    }
+    
+    public init(image: UIImage) {
+        self.image = image
+        super.init(mimeType: "image/png")
     }
     
     override class func creationClosure() -> CreationClosure {
