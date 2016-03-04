@@ -35,7 +35,7 @@ class MockRequest : IRequest {
         
         let request = Request()
         request.url = responseURL
-        request.headers = ["Accept" : "application/json"]
+        request.headers = ["accept" : "application/json"]
         request.start { (object, httpResponse, error) -> Void in
             if let data = object as? NSData {
                 do {

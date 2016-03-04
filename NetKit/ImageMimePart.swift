@@ -49,7 +49,7 @@ public class ImageMimePart : MimePart {
         return ["image/png", "image/jpg", "image/jpeg", "image/gif", "image/tiff", "image/tif", "image/*"]
     }
     
-    override func dataRepresentation( completion: (data: NSData?) -> Void) {
+    override public func dataRepresentation( completion: (data: NSData?) -> Void) {
         completion(data: UIImagePNGRepresentation(self.image))
     }
 

@@ -51,7 +51,7 @@ public class MimePart {
     // subclassers should implement :
     // init(jsonData: NSData, encoding: NSStringEncoding)
     
-    func dataRepresentation( completion: (data: NSData?) -> Void) {
+    public func dataRepresentation( completion: (data: NSData?) -> Void) {
         
     }
     

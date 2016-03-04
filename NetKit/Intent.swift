@@ -27,7 +27,12 @@ public protocol IntentControlPoint : IntentProvider {
 }
 
 public protocol IntentReceivedData : IntentProvider {
-    func receivedData(intent: Intent, data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?)
+    func receivedData(intent: Intent, request:IntentRequest, data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response) -> Bool
+}
+
+public protocol IntentRequest: AnyObject {
+    var retries: Int { get set }
+    func start(completion: Response)
 }
 
 // MARK: - class Intent -
@@ -80,8 +85,9 @@ public class Intent {
 }
 
 // MARK: - class IRequest -
-internal class IRequest : Request {
+internal class IRequest : Request, IntentRequest {
     weak var intent: Intent?
+    var retries: Int = 4
     
 // MARK: - init -
     init(intent: Intent, session: NSURLSession? = nil, httpMethod: String = "GET", flags: [String:Any]? = nil) {
@@ -111,10 +117,11 @@ internal class IRequest : Request {
     }
 
     
-    internal override func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?) {
+    internal override func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response) -> Bool {
         if let intent = intent, let provider = intent.provider as? IntentReceivedData {
-            provider.receivedData(intent, data: data, object: &object, httpResponse: &httpResponse, error: &error)
+            return provider.receivedData(intent, request: self, data: data, object: &object, httpResponse: &httpResponse, error: &error, completion: completion)
         }
+        return true
     }
     
     internal override func sessionDescription() -> String {

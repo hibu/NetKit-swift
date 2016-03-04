@@ -42,7 +42,7 @@ public class JSONMimePart : MimePart {
         }
     }
     
-    override func dataRepresentation( completion: (data: NSData?) -> Void) {
+    override public func dataRepresentation( completion: (data: NSData?) -> Void) {
         completion(data: jsonData)
     }
     

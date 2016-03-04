@@ -139,8 +139,8 @@ public class Request {
         work(nil)
     }
     
-    public func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?) {
-        
+    public func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response) -> Bool {
+        return true
     }
     
     public func configureRequest() throws {
@@ -185,10 +185,13 @@ public class Request {
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
             var logRaw = false
             let headers = httpResponse?.allHeaderFields as? [String:String]
-            let statusCode = httpResponse?.statusCode
+            var statusStr = ""
+            if let statusCode = httpResponse?.statusCode {
+                statusStr = "\(statusCode)"
+            }
             
             NSLog("\n")
-            NSLog("****** RESPONSE #\(self.uid) status: \(statusCode) ******")
+            NSLog("****** RESPONSE #\(self.uid) status: \(statusStr) ******")
             NSLog("URL = %@", self.url == nil ? "" : self.url!)
             NSLog("Headers = \(headers)")
             if let error = error {
@@ -196,7 +199,7 @@ public class Request {
             }
             
             var size = 0
-            if let length = headers?["Content-Length"] {
+            if let length = headers?["content-length"] {
                 if let sizeInt = Int(length) {
                     size = sizeInt
                 }
@@ -209,7 +212,7 @@ public class Request {
             let formatter = NSByteCountFormatter()
             var sizeString = formatter.stringFromByteCount(Int64(size))
             
-            if let encoding = headers?["Content-Encoding"] {
+            if let encoding = headers?["content-encoding"] {
                 sizeString = "\(encoding) \(sizeString)"
             }
             
@@ -239,16 +242,17 @@ public class Request {
         var theHttpResponse = httpResponse
         var theError = error
         
-        didReceiveData(data, object:&theObject, httpResponse: &theHttpResponse, error: &theError)
+        if didReceiveData(data, object:&theObject, httpResponse: &theHttpResponse, error: &theError, completion:completion) {
         
-        let response = { () -> Void in
-            completion(object: theObject, httpResponse: theHttpResponse, error: theError)
-        }
-        
-        if completesOnGlobalQueue {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), response)
-        } else {
-            executeOnMainThread(response)
+            let response = { () -> Void in
+                completion(object: theObject, httpResponse: theHttpResponse, error: theError)
+            }
+            
+            if completesOnGlobalQueue {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), response)
+            } else {
+                executeOnMainThread(response)
+            }
         }
         
         _request = nil
@@ -389,8 +393,17 @@ public class Request {
                 var object: Any?
                 
                 if error == nil && httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
+                    
+                    var type = ""
+                    
+                    if (headers["content-type"] != nil) {
+                        type = headers["content-type"]!
+                    } else if (headers["Content-Type"] != nil) {
+                        type = headers["Content-Type"]!
+                    }
+                    
                     if let data = data {
-                        object = self.convertData(data, contentType: headers["Content-Type"]!)
+                        object = self.convertData(data, contentType: type)
                     }
                 }
                 

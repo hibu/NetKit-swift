@@ -24,7 +24,7 @@ class netkitTests: XCTestCase {
     func testFetchAppleHomePage() {
         let request = Request()
         request.urlString = "http://apple.com"
-        request.headers = ["Accept":"text/html"]
+        request.headers = ["accept":"text/html"]
         request.start { (object, httpResponse, error) -> Void in
             
             if let html = object as? String {
@@ -37,7 +37,7 @@ class netkitTests: XCTestCase {
     func testFetchImage() {
         let request = Request()
         request.urlString = "https://www-a.yellqatest.com/static/image/26bac63a-bc5a-4e7c-aec2-9c837d034f17_image_jpeg"
-        request.headers = ["Accept":"image/*"]
+        request.headers = ["accept":"image/*"]
         request.urlComponents.addQueryItems([NSURLQueryItem(name: "t", value: "tr/w:238/h:178/q:70")])
         request.start { (object, httpResponse, error) -> Void in
             
@@ -58,8 +58,8 @@ class netkitTests: XCTestCase {
             }
             
             func configureRequest(request: Request, intent: Intent, flags: [String:Any]?) throws {
-                if (request.headers["Accept"] == nil) {
-                    request.addHeaders(["Accept":"application/json"])
+                if (request.headers["accept"] == nil) {
+                    request.addHeaders(["accept":"application/json"])
                 }
                 
                 request.buildUrl { (components: NSURLComponents) -> Void in
