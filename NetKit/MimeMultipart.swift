@@ -49,7 +49,7 @@ public class MimeMultipart : MimePart {
         return MultipartMimeTypes.allValues.map { $0.rawValue }
     }
     
-    override func dataRepresentation( completion: (data: NSData?) -> Void) {
+    override public func dataRepresentation( completion: (data: NSData?) -> Void) {
         guard parts.count > 0 else {
             completion(data: nil)
             return
