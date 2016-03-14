@@ -193,7 +193,9 @@ public class Request {
             NSLog("\n")
             NSLog("****** RESPONSE #\(self.uid) status: \(statusStr) ******")
             NSLog("URL = %@", self.url == nil ? "" : self.url!)
+            if let headers = headers {
             NSLog("Headers = \(headers)")
+            }
             if let error = error {
                 NSLog("Error = \(error)")
             }
