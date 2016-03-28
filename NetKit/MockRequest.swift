@@ -37,14 +37,12 @@ class MockRequest : IRequest {
         request.url = responseURL
         request.headers = ["accept" : "application/json"]
         request.start { (object, httpResponse, error) -> Void in
-            if let data = object as? NSData {
-                do {
-                    if let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) as? NSDictionary {
+            
+            if let data = object as? NSData,
+                json = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) {
                         completion(object: json, httpResponse: httpResponse, error: error)
-                    }
-                } catch {
-                    completion(object: nil, httpResponse: httpResponse, error: nil)
-                }
+            } else {
+                completion(object: nil, httpResponse: httpResponse, error: error)
             }
         }
     }
