@@ -17,7 +17,11 @@ public class ImageMimePart : MimePart {
         if let image = UIImage(data: imageData, scale:0) {
             self.image = image
             self.base64 = base64
-            super.init(mimeType: "image/png")
+            if base64 {
+                super.init(mimeType: "application/json")
+            } else {
+                super.init(mimeType: "image/png")
+            }
         } else {
             self.image = UIImage()
             self.base64 = base64
@@ -29,7 +33,11 @@ public class ImageMimePart : MimePart {
     public init(image: UIImage, base64: Bool = false) {
         self.image = image
         self.base64 = base64
-        super.init(mimeType: "image/png")
+        if base64 {
+            super.init(mimeType: "application/json")
+        } else {
+            super.init(mimeType: "image/png")
+        }
     }
     
     override class func creationClosure() -> CreationClosure {
