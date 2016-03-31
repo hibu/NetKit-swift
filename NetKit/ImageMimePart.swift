@@ -11,20 +11,24 @@ import UIKit
 public class ImageMimePart : MimePart {
     
     let image: UIImage
+    let base64: Bool
     
-    required public init(imageData: NSData) throws {
+    required public init(imageData: NSData, base64: Bool = false) throws {
         if let image = UIImage(data: imageData, scale:0) {
             self.image = image
+            self.base64 = base64
             super.init(mimeType: "image/png")
         } else {
             self.image = UIImage()
+            self.base64 = base64
             super.init(mimeType: "image/png")
             throw NSCocoaError.init(rawValue: 999)
         }
     }
     
-    public init(image: UIImage) {
+    public init(image: UIImage, base64: Bool = false) {
         self.image = image
+        self.base64 = base64
         super.init(mimeType: "image/png")
     }
     
@@ -50,7 +54,21 @@ public class ImageMimePart : MimePart {
     }
     
     override public func dataRepresentation( completion: (data: NSData?) -> Void) {
-        completion(data: UIImagePNGRepresentation(self.image))
+        if let imageData = UIImagePNGRepresentation(self.image) {
+            if base64 {
+                let base64String = imageData.base64EncodedStringWithOptions([])
+                let json = ["image":base64String]
+                if let jsonData = try? NSJSONSerialization.dataWithJSONObject(json, options: []) {
+                    completion(data: jsonData)
+                    return
+                }
+            } else {
+                completion(data: imageData)
+                return
+            }
+        }
+        
+        fatalError("should never reach that point")
     }
 
     override var content: Any {
