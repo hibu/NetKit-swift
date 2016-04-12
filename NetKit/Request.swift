@@ -394,7 +394,7 @@ public class Request {
                 
                 var object: Any?
                 
-                if error == nil && httpResponse.statusCode >= 200 && httpResponse.statusCode <= 299 {
+                if error == nil {
                     
                     var type = ""
                     
