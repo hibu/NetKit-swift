@@ -50,6 +50,7 @@ public class Request {
     public var completesOnGlobalQueue = false
     public var quiet: Bool = false
     public var logRawResponseData: Bool = false
+    public var timeout: NSTimeInterval?
     
     public var flags: [String:Any]?
     
@@ -265,6 +266,10 @@ public class Request {
         
         let mRequest = NSMutableURLRequest(URL: url)
         mRequest.HTTPMethod = self.method
+        
+        if let timeout = timeout {
+            mRequest.timeoutInterval = timeout
+        }
         
         let group = dispatch_group_create()
         
