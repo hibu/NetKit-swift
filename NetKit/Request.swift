@@ -53,6 +53,7 @@ public class Request {
     public var timeout: NSTimeInterval?
     
     public var flags: [String:Any]?
+    private var upload: Bool = false
     
     private (set) public var executing = false
     private (set) public var cancelled = false
@@ -128,6 +129,18 @@ public class Request {
         executeControlPointClosure(work)
         _request = self
     }
+    
+    public func startUpload() {
+        if executing {
+            fatalError("start called on a request already started")
+        }
+        
+        upload = true
+        let work = controlPointClosure({_,_,_ in })
+        executeControlPointClosure(work)
+        _request = self
+    }
+
     
     public func cancel() {
         cancelled = true
@@ -348,11 +361,22 @@ public class Request {
         }
         
         let tryClosure = { () -> Void in
+            if self.upload {
+                let url = NSURL.fileURLWithPath(NSTemporaryDirectory() + NSUUID().UUIDString)
+                
+                if let data = urlRequest.HTTPBody {
+                    try! data.writeToURL(url, options: [.DataWritingAtomic])
+                    urlRequest.HTTPBody = nil
+                }
+                
+                self.dataTask = self.session.uploadTaskWithRequest(urlRequest, fromFile: url)
+            } else {
             // this call will raise an exception if the session is invalid
-            self.dataTask = Optional(self.session.dataTaskWithRequest(urlRequest) { (data: NSData?, urlResponse: NSURLResponse?, error: NSError?) -> Void in
-                self.processResponseData(data, urlResponse: urlResponse, error: error, completion: completion)
-                self.executeCompletion(workCompletion)
-                })
+                self.dataTask = self.session.dataTaskWithRequest(urlRequest) { (data, response, error) in
+                    self.processResponseData(data, urlResponse: response, error: error, completion: completion)
+                    self.executeCompletion(workCompletion)
+                }
+            }
         }
         
         let catchClosure = { (exception: NSException) in
@@ -376,6 +400,10 @@ public class Request {
         }
         
         self.dataTask?.resume()
+        
+        if upload {
+            _request = nil
+        }
     }
 
     private func processResponseData(data: NSData?, urlResponse: NSURLResponse?, error: NSError?, completion: Response) {
