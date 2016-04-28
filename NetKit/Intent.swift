@@ -64,7 +64,7 @@ public class Intent {
             session.invalidateAndCancel()
         }
         
-        NSLog("NETIntent \(fullName) - deinit");
+        DLog("NETIntent \(fullName) - deinit");
     }
     
 // MARK: - API -

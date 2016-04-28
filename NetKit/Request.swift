@@ -81,7 +81,7 @@ public class Request {
     
     deinit {
         if !quiet {
-            NSLog("\(self.description) - deinit")
+            DLog("\(self.description) - deinit")
         }
     }
 
@@ -181,17 +181,17 @@ public class Request {
         let desc = sessionDescription()
         
         dispatch_async(dispatch_get_main_queue()) { () -> Void in
-            NSLog("\n")
-            NSLog("****** \(self.method) REQUEST #\(self.uid) \(desc) ******")
-            NSLog("URL = %@", self.url == nil ? "" : self.url!)
-            NSLog("Headers = \(self.headers)")
+            DLog("\n")
+            DLog("****** \(self.method) REQUEST #\(self.uid) \(desc) ******")
+            DLog(NSString(format:"URL = %@", self.url == nil ? "" : self.url!))
+            DLog("Headers = \(self.headers)")
             self.body?.dataRepresentation { (data) -> Void in
                 if let data = data {
-                    NSLog("Body = \(data)")
+                    DLog("Body = \(data)")
                 }
             }
-            NSLog("****** \\REQUEST #\(self.uid) ******")
-            NSLog("\n")
+            DLog("****** \\REQUEST #\(self.uid) ******")
+            DLog("\n")
         }
     }
     
@@ -204,14 +204,14 @@ public class Request {
                 statusStr = "\(statusCode)"
             }
             
-            NSLog("\n")
-            NSLog("****** RESPONSE #\(self.uid) status: \(statusStr) ******")
-            NSLog("URL = %@", self.url == nil ? "" : self.url!)
+            DLog("\n")
+            DLog("****** RESPONSE #\(self.uid) status: \(statusStr) ******")
+            DLog(NSString(format:"URL = %@", self.url == nil ? "" : self.url!))
             if let headers = headers {
-            NSLog("Headers = \(headers)")
+            DLog("Headers = \(headers)")
             }
             if let error = error {
-                NSLog("Error = \(error)")
+                DLog("Error = \(error)")
             }
             
             var size = 0
@@ -233,20 +233,20 @@ public class Request {
             }
             
             if let object = object as? CustomStringConvertible {
-                NSLog("Body (\(sizeString)) = " + object.description)
+                DLog("Body (\(sizeString)) = " + object.description)
             } else {
                 logRaw = true
             }
             
             if let data = data where self.logRawResponseData || logRaw {
                 if let dataStr = NSString(data: data, encoding: NSUTF8StringEncoding) {
-                    NSLog("Body (raw, \(sizeString)) = %@", dataStr)
+                    DLog(NSString(format:"Body (raw, \(sizeString)) = %@", dataStr))
                 } else {
-                    NSLog("Body (raw, \(sizeString)) = \(data)")
+                    DLog("Body (raw, \(sizeString)) = \(data)")
                 }
             }
-            NSLog("****** \\RESPONSE #\(self.uid) ******")
-            NSLog("\n")
+            DLog("****** \\RESPONSE #\(self.uid) ******")
+            DLog("\n")
         }
     }
     

@@ -68,7 +68,7 @@ public class MimeMultipart : MimePart {
                 if let data = data {
                     content.appendData(data)
                 } else {
-                    NSLog("*** unable to get data from part \(part) ***")
+                    DLog("*** unable to get data from part \(part) ***")
                 }
             }
             
