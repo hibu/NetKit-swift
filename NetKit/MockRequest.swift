@@ -16,6 +16,34 @@ class MockProvider: IntentProvider {
     }
 }
 
+/*
+ class MockRequest
+ 
+ Mock requests will ignore all configuration done to it and will instead fetch a file
+ from the mockBaseURL.
+ 
+ typical use:
+ 
+ // when app starts :
+ mockBaseURL = "https://dl.dropboxusercontent.com/u/28161289/" // a public dropbox
+ 
+ let intent = ...
+ let request = Request.mockRequestWithIntent("reputation.json", intent: intent)
+ request.buildUrl  { (builder) in
+    builder.path = "listing/\(natid)/reviews/histogram"
+ }
+ 
+ request.start { (object, httpResponse, error) -> Void in
+    if let json = object as? JSONDictionary {
+        ...
+    }
+ 
+ }
+ 
+ fetches the file reputation.json from a dropbox.
+ 
+ */
+
 class MockRequest : IRequest {
     
     var responseURL: NSURL

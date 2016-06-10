@@ -37,6 +37,29 @@ public protocol IntentRequest: AnyObject {
 
 // MARK: - class Intent -
 
+/*
+ class Intent
+ 
+ Intents are used to implement endpoints (ex: google geocoding)
+ They provide optional points to construct / modify Request objects.
+ 
+ Typical use:
+ 
+ let intent = ...
+ 
+ let request = Request.requestWithIntent(intent)
+ request.buildUrl { (builder) -> Void in
+    builder.path = "products"
+ }
+ 
+ request.start { (object, httpResponse, error) -> Void in
+    if json = object as JSONDictionary {
+        ...
+    }
+ }
+
+ */
+
 public class Intent {
     public let name: String
     public let uid: UInt

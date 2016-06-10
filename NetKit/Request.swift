@@ -39,6 +39,21 @@ public func executeOnMainThread( closure: () -> Void ) {
 
 // MARK: - class Request -
 
+/*
+ class Request
+ 
+ typical use:
+ 
+ let request = Request()
+ request.urlString = "http://apple.com"
+ request.headers = ["Accept": "text/html"]
+ request.start { (object, response, error) in
+    if let html = object as String {
+        print(html)
+    }
+ }
+ 
+ */
 public class Request {
     public let session: NSURLSession
     public let method: String
@@ -86,7 +101,7 @@ public class Request {
     }
 
 // MARK: - getters / setters -
-    public func buildUrl(componentsBlock: NSURLComponents -> Void) {
+    public func buildUrl(componentsBlock: (NSURLComponents) -> Void) {
         componentsBlock(urlComponents)
     }
     
