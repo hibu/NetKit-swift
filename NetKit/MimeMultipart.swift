@@ -18,7 +18,7 @@ public enum MultipartMimeTypes : String {
 }
 
 private func randomBoundary() -> String {
-    return String(format: "NETKit.boundary.%08x%08x", arc4random(), arc4random())
+    return String(format: "NETKit.boundary.%08x%08x", random(), random())
 }
 
 
