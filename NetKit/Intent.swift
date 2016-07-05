@@ -19,7 +19,7 @@ public protocol IntentConfigureRequest : IntentProvider {
 }
 
 public protocol IntentConfigureURLRequest : IntentProvider {
-    func configureURLRequest(urlRequest: NSMutableURLRequest, request: Request, intent: Intent, flags: [String:Any]?) throws
+    func configureURLRequest(urlRequest: NSMutableURLRequest, request: Request, intent: Intent, flags: [String:Any]?, completion: Response) throws
 }
 
 public protocol IntentControlPoint : IntentProvider {
@@ -27,11 +27,12 @@ public protocol IntentControlPoint : IntentProvider {
 }
 
 public protocol IntentReceivedData : IntentProvider {
-    func receivedData(intent: Intent, request:IntentRequest, data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response) -> Bool
+    func receivedData(intent: Intent, request:IntentRequest, data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response, flags: [String:Any]?) -> Bool
 }
 
 public protocol IntentRequest: AnyObject {
     var retries: Int { get set }
+    var url: NSURL? { get }
     func start(completion: Response)
 }
 
@@ -133,16 +134,16 @@ internal class IRequest : Request, IntentRequest {
         }
     }
     
-    internal override func configureURLRequest(urlRequest: NSMutableURLRequest) throws {
+    internal override func configureURLRequest(urlRequest: NSMutableURLRequest, completion: Response) throws {
         if let intent = intent, let provider = intent.provider as? IntentConfigureURLRequest {
-            try provider.configureURLRequest(urlRequest, request: self, intent: intent, flags: flags)
+            try provider.configureURLRequest(urlRequest, request: self, intent: intent, flags: flags, completion: completion)
         }
     }
 
     
     internal override func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response) -> Bool {
         if let intent = intent, let provider = intent.provider as? IntentReceivedData {
-            return provider.receivedData(intent, request: self, data: data, object: &object, httpResponse: &httpResponse, error: &error, completion: completion)
+            return provider.receivedData(intent, request: self, data: data, object: &object, httpResponse: &httpResponse, error: &error, completion: completion, flags: self.flags)
         }
         return true
     }

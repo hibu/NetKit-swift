@@ -176,7 +176,7 @@ public class Request {
         
     }
     
-    public func configureURLRequest(urlRequest: NSMutableURLRequest) throws {
+    public func configureURLRequest(urlRequest: NSMutableURLRequest, completion: Response) throws {
         
     }
     
@@ -368,7 +368,7 @@ public class Request {
 
     private func executeDataTaskWithURLRequest(urlRequest: NSMutableURLRequest, completion: Response, workCompletion: Completion?) {
         do {
-            try configureURLRequest(urlRequest)
+            try configureURLRequest(urlRequest, completion: completion)
         } catch let error as NSError {
             self.completeWithObject(nil, data:nil, httpResponse:nil, error:error, completion:completion)
             self.executeCompletion(workCompletion)
@@ -421,7 +421,7 @@ public class Request {
         }
     }
 
-    private func processResponseData(data: NSData?, urlResponse: NSURLResponse?, error: NSError?, completion: Response) {
+    public func processResponseData(data: NSData?, urlResponse: NSURLResponse?, error: NSError?, completion: Response) {
         
         dispatch_async(dispatch_get_main_queue()) {
             NSNotificationCenter.defaultCenter().postNotificationName(NETRequestDidEndNotification, object:self)
