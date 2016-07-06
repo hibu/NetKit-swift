@@ -446,9 +446,9 @@ public class Request {
                     
                     var type = ""
                     
-                    if (headers["content-type"] != nil) {
+                    if headers["content-type"] != nil {
                         type = headers["content-type"]!
-                    } else if (headers["Content-Type"] != nil) {
+                    } else if headers["Content-Type"] != nil {
                         type = headers["Content-Type"]!
                     }
                     
