@@ -69,10 +69,11 @@ public class Request {
     
     public var flags: [String:Any]?
     private var upload: Bool = false
+    private var taskGroup = dispatch_group_create()
     
     private (set) public var executing = false
     private (set) public var cancelled = false
-    private var dataTask: NSURLSessionDataTask?
+    private var dataTask: NSURLSessionDataTask? { didSet { if dataTask != nil { dispatch_group_leave(taskGroup) } } }
     private var _request: Request?
     
 // MARK: - init / deinit -
@@ -140,20 +141,29 @@ public class Request {
             fatalError("start called on a request already started")
         }
         
+        dispatch_group_enter(taskGroup)
         let work = controlPointClosure(completion)
         executeControlPointClosure(work)
         _request = self
+        
     }
     
-    public func startUpload() {
+    public func startUpload(task: (NSURLSessionUploadTask) -> Void) {
         if executing {
             fatalError("start called on a request already started")
         }
         
+        dispatch_group_enter(taskGroup)
         upload = true
         let work = controlPointClosure({_,_,_ in })
         executeControlPointClosure(work)
         _request = self
+        
+        dispatch_group_notify(taskGroup, dispatch_get_main_queue()) {
+            if let uploadTask = self.dataTask as? NSURLSessionUploadTask {
+                task(uploadTask)
+            }
+        }
     }
 
     
@@ -202,7 +212,7 @@ public class Request {
             DLog("Headers = \(self.headers)")
             self.body?.dataRepresentation { (data) -> Void in
                 if let data = data {
-                    DLog("Body = \(data)")
+                    DLog("Body = \(data.subdataWithRange(NSRange(location: 0, length: min(data.length, 20))))")
                 }
             }
             DLog("****** \\REQUEST #\(self.uid) ******")
