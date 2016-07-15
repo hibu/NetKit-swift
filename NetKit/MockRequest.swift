@@ -48,12 +48,12 @@ class MockRequest : IRequest {
     
     var responseURL: NSURL
     
-    init(url: String, intent: Intent, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
+    init(url: String, intent: Intent, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
         responseURL = NSURL(string:mockBaseURL + url)!
         super.init(intent: intent, session: session, httpMethod: httpMethod, flags: flags)
     }
     
-    convenience init(url: String, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
+    convenience init(url: String, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
         let provider = MockProvider()
         let intent = Intent(name: "mockRequest", provider: provider)
         self.init(url: url, intent: intent, session: session, httpMethod: httpMethod, flags: flags)
@@ -78,7 +78,7 @@ class MockRequest : IRequest {
 
 
 public extension Request {
-    public class func mockRequestWithIntent(url: String, intent: Intent?, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) -> Request {
+    public class func mockRequestWithIntent(url: String, intent: Intent?, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
         var myIntent: Intent
         
         if let intent = intent {
@@ -90,7 +90,7 @@ public extension Request {
         
         return MockRequest(url: url, intent: myIntent, session: session, httpMethod: httpMethod, flags: flags)
     }
-    public class func mockRequest(url: String, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) -> Request {
+    public class func mockRequest(url: String, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
         return MockRequest(url: url, session: session, httpMethod: httpMethod, flags: flags)
     }
 }

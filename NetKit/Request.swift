@@ -37,6 +37,13 @@ public func executeOnMainThread( closure: () -> Void ) {
     }
 }
 
+public enum HTTPMethod: String {
+    case get = "GET"
+    case post = "POST"
+    case put = "PUT"
+    case delete = "DELETE"
+}
+
 // MARK: - class Request -
 
 /*
@@ -56,7 +63,7 @@ public func executeOnMainThread( closure: () -> Void ) {
  */
 public class Request {
     public let session: NSURLSession
-    public let method: String
+    public let method: HTTPMethod
     public let uid: Int
 
     public var headers = Dictionary<String, Any>()
@@ -77,7 +84,7 @@ public class Request {
     private var _request: Request?
     
 // MARK: - init / deinit -
-    public init(session: NSURLSession = NSURLSession.sharedSession(), httpMethod: String = "GET", flags: [String:Any]? = nil) {
+    public init(session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
         self.session = session
         method = httpMethod
         uid = assignUID()
@@ -303,7 +310,7 @@ public class Request {
         guard let url = self.url else { completion(nil); return }
         
         let mRequest = NSMutableURLRequest(URL: url)
-        mRequest.HTTPMethod = self.method
+        mRequest.HTTPMethod = self.method.rawValue
         
         if let timeout = timeout {
             mRequest.timeoutInterval = timeout

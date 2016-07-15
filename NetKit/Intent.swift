@@ -114,7 +114,7 @@ internal class IRequest : Request, IntentRequest {
     var retries: Int = 4
     
 // MARK: - init -
-    init(intent: Intent, session: NSURLSession? = nil, httpMethod: String = "GET", flags: [String:Any]? = nil) {
+    init(intent: Intent, session: NSURLSession? = nil, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
         self.intent = intent
         super.init(session: session ?? intent.session, httpMethod: httpMethod, flags: flags)
     }
@@ -161,7 +161,7 @@ internal class IRequest : Request, IntentRequest {
 // MARK: - Request extension -
 
 public extension Request {
-    public class func requestWithIntent(intent: Intent?, session: NSURLSession? = nil, httpMethod: String = "GET", flags: [String:Any]? = nil) -> Request {
+    public class func requestWithIntent(intent: Intent?, session: NSURLSession? = nil, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
         if let intent = intent {
             return IRequest(intent: intent, session: session, httpMethod: httpMethod, flags: flags)
         } else {
