@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import NetKit
+@testable import netkit
 
 class netkitTests: XCTestCase {
     
@@ -28,7 +28,7 @@ class netkitTests: XCTestCase {
         request.start { (object, httpResponse, error) -> Void in
             
             if let html = object as? String {
-                XCTAssert(html.contains("<html"))
+                XCTAssert(html.containsString("<html"))
             }
         }
         
@@ -38,7 +38,7 @@ class netkitTests: XCTestCase {
         let request = Request()
         request.urlString = "https://www-a.yellqatest.com/static/image/26bac63a-bc5a-4e7c-aec2-9c837d034f17_image_jpeg"
         request.headers = ["accept":"image/*"]
-        request.urlComponents.addQueryItems([URLQueryItem(name: "t", value: "tr/w:238/h:178/q:70")])
+        request.urlComponents.addQueryItems([NSURLQueryItem(name: "t", value: "tr/w:238/h:178/q:70")])
         request.start { (object, httpResponse, error) -> Void in
             
             if let image = object as? UIImage {
@@ -52,17 +52,17 @@ class netkitTests: XCTestCase {
     func testGeocoding() {
         class Provider : IntentProvider, IntentConfigureRequest {
             
-            func sessionCreatedForIntentNamed(_ name: String) -> URLSession {
-                let configuration = URLSessionConfiguration.default
-                return URLSession(configuration: configuration)
+            func sessionCreatedForIntentNamed(name: String) -> NSURLSession {
+                let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+                return NSURLSession(configuration: configuration)
             }
             
-            func configureRequest(_ request: Request, intent: Intent, flags: [String:Any]?) throws {
+            func configureRequest(request: Request, intent: Intent, flags: [String:Any]?) throws {
                 if (request.headers["accept"] == nil) {
                     request.addHeaders(["accept":"application/json"])
                 }
                 
-                request.buildUrl { (components: URLComponents) -> Void in
+                request.buildUrl { (components: NSURLComponents) -> Void in
                     components.scheme = "https"
                     components.host = "maps.googleapis.com"
                     let userPath = components.path!
@@ -79,8 +79,8 @@ class netkitTests: XCTestCase {
         let request = Request.requestWithIntent(intent)
         request.urlComponents.path = "geocode"
         request.urlComponents.addQueryItems([
-            URLQueryItem(name: "sensor", value: "true"),
-            URLQueryItem(name: "latlng", value: "51.48,-0.13")
+            NSURLQueryItem(name: "sensor", value: "true"),
+            NSURLQueryItem(name: "latlng", value: "51.48,-0.13")
             ])
         request.start { (object, httpResponse, error) -> Void in
             
@@ -90,7 +90,16 @@ class netkitTests: XCTestCase {
             }
         }
         
+        
+        
     }
     
+    
+    //    func testPerformanceExample() {
+    //        // This is an example of a performance test case.
+    //        self.measureBlock {
+    //            // Put the code you want to measure the time of here.
+    //        }
+    //    }
     
 }

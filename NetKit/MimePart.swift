@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias CreationClosure = (data: Data) -> MimePart?
+public typealias CreationClosure = (data: NSData) -> MimePart?
 
 // MARK: - abstract class MimePart -
 public class MimePart {
@@ -45,18 +45,18 @@ public class MimePart {
     }
     
     init(mimeType: String) {
-        self.mType = mimeType.lowercased()
+        self.mType = mimeType.lowercaseString
     }
     
     // subclassers should implement :
     // init(jsonData: NSData, encoding: NSStringEncoding)
     
-    public func dataRepresentation( _ completion: (data: Data?) -> Void) {
+    public func dataRepresentation( completion: (data: NSData?) -> Void) {
         
     }
     
     class func creationClosure() -> CreationClosure {
-        return { (data: Data) -> MimePart? in
+        return { (data: NSData) -> MimePart? in
             return nil
         }
     }

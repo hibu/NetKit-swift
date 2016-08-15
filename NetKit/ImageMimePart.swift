@@ -13,7 +13,7 @@ public class ImageMimePart : MimePart {
     let image: UIImage
     let base64: Bool
     
-    required public init(imageData: Data, base64: Bool = false) throws {
+    required public init(imageData: NSData, base64: Bool = false) throws {
         if let image = UIImage(data: imageData, scale:0) {
             self.image = image
             self.base64 = base64
@@ -26,7 +26,7 @@ public class ImageMimePart : MimePart {
             self.image = UIImage()
             self.base64 = base64
             super.init(mimeType: "image/png")
-            throw CocoaError(_nsError: NSError(domain: "unsupported image format or corrupted data", code: 999))
+            throw NSCocoaError.init(rawValue: 999)
         }
     }
     
@@ -41,7 +41,7 @@ public class ImageMimePart : MimePart {
     }
     
     override class func creationClosure() -> CreationClosure {
-        return { (data: Data) -> MimePart? in
+        return { (data: NSData) -> MimePart? in
             var imagePart: MimePart?
 
             do {
@@ -61,12 +61,12 @@ public class ImageMimePart : MimePart {
         return ["image/png", "image/jpg", "image/jpeg", "image/gif", "image/tiff", "image/tif", "image/*"]
     }
     
-    override public func dataRepresentation( _ completion: (data: Data?) -> Void) {
+    override public func dataRepresentation( completion: (data: NSData?) -> Void) {
         if let imageData = UIImagePNGRepresentation(self.image) {
             if base64 {
-                let base64String = imageData.base64EncodedString(options: [])
+                let base64String = imageData.base64EncodedStringWithOptions([])
                 let json = ["image":base64String]
-                if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: []) {
+                if let jsonData = try? NSJSONSerialization.dataWithJSONObject(json, options: []) {
                     completion(data: jsonData)
                     return
                 }

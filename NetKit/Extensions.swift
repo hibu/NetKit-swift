@@ -8,17 +8,17 @@
 
 import Foundation
 
-private let formatter: DateFormatter = {
-    let f = DateFormatter()
+private let formatter: NSDateFormatter = {
+    let f = NSDateFormatter()
     f.dateFormat = "d/M/yyyy H:m:ss.SSS"
     return f
 }()
 
-public func DLog<T>(_ message:T, file:String = #file, function:String = #function, line:Int = #line, showFile: Bool = false, showFunction: Bool = false, showLine: Bool = false) {
+public func DLog<T>(message:T, file:String = #file, function:String = #function, line:Int = #line, showFile: Bool = false, showFunction: Bool = false, showLine: Bool = false) {
     #if DEBUG
         if let text = message as? String {
             
-            var prefix = formatter.string(from: Date())
+            var prefix = formatter.stringFromDate(NSDate())
             
             if showFile {
                 let file: NSString = file
@@ -33,21 +33,21 @@ public func DLog<T>(_ message:T, file:String = #file, function:String = #functio
                 prefix = prefix + " \(line)"
             }
             
-            DispatchQueue.main.async {
+            dispatch_async(dispatch_get_main_queue()) {
                 print("\(prefix): " + text, terminator: "\n")
             }
         }
     #endif
 }
 
-internal func += <KeyType, ValueType> (left: inout Dictionary<KeyType, ValueType>, right: Dictionary<KeyType, ValueType>) {
+internal func += <KeyType, ValueType> (inout left: Dictionary<KeyType, ValueType>, right: Dictionary<KeyType, ValueType>) {
     for (k, v) in right {
         left.updateValue(v, forKey: k)
     }
 }
 
-internal extension URLComponents {
-    mutating func addQueryItems(_ items: [URLQueryItem]) {
+internal extension NSURLComponents {
+    func addQueryItems(items: [NSURLQueryItem]) {
         if let qItems = queryItems {
             queryItems = qItems + items
         } else {

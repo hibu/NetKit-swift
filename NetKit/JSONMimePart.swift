@@ -14,35 +14,35 @@ public typealias JSONArray = [AnyObject]
 
 public class JSONMimePart : MimePart {
     
-    let jsonData: Data
+    let jsonData: NSData
     
     override var content: Any {
         do {
-            return try JSONSerialization.jsonObject(with: jsonData, options: .allowFragments)
+            return try NSJSONSerialization.JSONObjectWithData(jsonData, options: .AllowFragments)
         } catch {
             return [:]
         }
     }
     
-    public required init(jsonData: Data) throws {
+    public required init(jsonData: NSData) throws {
         self.jsonData = jsonData
         super.init(mimeType: "application/json;charset=UTF-8")
     }
     
     public convenience init(jsonDictionary: NSDictionary) throws {
-        let data = try JSONSerialization.data(withJSONObject: jsonDictionary, options: .prettyPrinted)
+        let data = try NSJSONSerialization.dataWithJSONObject(jsonDictionary, options: .PrettyPrinted)
         try self.init(jsonData: data)
     }
     
     public convenience init(jsonString: JSONString) throws {
-        if let data = jsonString.data(using: String.Encoding.utf8) {
+        if let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding) {
             try self.init(jsonData: data)
         } else {
-            throw CocoaError(.formattingError)
+            throw NSCocoaError.FormattingError
         }
     }
     
-    override public func dataRepresentation( _ completion: (data: Data?) -> Void) {
+    override public func dataRepresentation( completion: (data: NSData?) -> Void) {
         completion(data: jsonData)
     }
     
@@ -51,7 +51,7 @@ public class JSONMimePart : MimePart {
     }
     
     override class func creationClosure() -> CreationClosure {
-        return { (data: Data) -> MimePart? in
+        return { (data: NSData) -> MimePart? in
             do {
             return try self.init(jsonData: data)
             } catch {

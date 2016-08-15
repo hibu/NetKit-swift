@@ -11,8 +11,8 @@ import Foundation
 public var mockBaseURL : String = ""
 
 class MockProvider: IntentProvider {
-    func sessionCreatedForIntentNamed(_ name: String) -> URLSession {
-        return URLSession.shared
+    func sessionCreatedForIntentNamed(name: String) -> NSURLSession {
+        return NSURLSession.sharedSession()
     }
 }
 
@@ -46,28 +46,28 @@ class MockProvider: IntentProvider {
 
 class MockRequest : IRequest {
     
-    var responseURL: URL
+    var responseURL: NSURL
     
-    init(url: String, intent: Intent, session: URLSession = URLSession.shared, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
-        responseURL = URL(string:mockBaseURL + url)!
+    init(url: String, intent: Intent, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
+        responseURL = NSURL(string:mockBaseURL + url)!
         super.init(intent: intent, session: session, httpMethod: httpMethod, flags: flags)
     }
     
-    convenience init(url: String, session: URLSession = URLSession.shared, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
+    convenience init(url: String, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
         let provider = MockProvider()
         let intent = Intent(name: "mockRequest", provider: provider)
         self.init(url: url, intent: intent, session: session, httpMethod: httpMethod, flags: flags)
     }
     
-    override func start(_ completion: Response) {
+    override func start(completion: Response) {
         
         let request = Request()
         request.url = responseURL
         request.headers = ["accept" : "application/json"]
         request.start { (object, httpResponse, error) -> Void in
             
-            if let data = object as? Data,
-                let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) {
+            if let data = object as? NSData,
+                json = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) {
                         completion(object: json, httpResponse: httpResponse, error: error)
             } else {
                 completion(object: nil, httpResponse: httpResponse, error: error)
@@ -78,7 +78,7 @@ class MockRequest : IRequest {
 
 
 public extension Request {
-    public class func mockRequestWithIntent(_ url: String, intent: Intent?, session: URLSession = URLSession.shared, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
+    public class func mockRequestWithIntent(url: String, intent: Intent?, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
         var myIntent: Intent
         
         if let intent = intent {
@@ -90,7 +90,7 @@ public extension Request {
         
         return MockRequest(url: url, intent: myIntent, session: session, httpMethod: httpMethod, flags: flags)
     }
-    public class func mockRequest(_ url: String, session: URLSession = URLSession.shared, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
+    public class func mockRequest(url: String, session: NSURLSession = NSURLSession.sharedSession(), httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
         return MockRequest(url: url, session: session, httpMethod: httpMethod, flags: flags)
     }
 }
