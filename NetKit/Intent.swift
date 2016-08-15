@@ -11,29 +11,29 @@ import Foundation
 // MARK: - protocols -
 
 public protocol IntentProvider {
-    func sessionCreatedForIntentNamed(name: String) -> NSURLSession
+    func sessionCreatedForIntentNamed(_ name: String) -> URLSession
 }
 
 public protocol IntentConfigureRequest : IntentProvider {
-    func configureRequest(request: Request, intent: Intent, flags: [String:Any]?) throws
+    func configureRequest(_ request: Request, intent: Intent, flags: [String:Any]?) throws
 }
 
 public protocol IntentConfigureURLRequest : IntentProvider {
-    func configureURLRequest(urlRequest: NSMutableURLRequest, request: Request, intent: Intent, flags: [String:Any]?, completion: Response) throws
+    func configureURLRequest(_ urlRequest: NSMutableURLRequest, request: Request, intent: Intent, flags: [String:Any]?, completion: Response) throws
 }
 
 public protocol IntentControlPoint : IntentProvider {
-    func controlPoint(intent: Intent, toBeExecuted: (() -> Void) -> Void)
+    func controlPoint(_ intent: Intent, toBeExecuted: (() -> Void) -> Void)
 }
 
 public protocol IntentReceivedData : IntentProvider {
-    func receivedData(intent: Intent, request:IntentRequest, data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response, flags: [String:Any]?) -> Bool
+    func receivedData(_ intent: Intent, request:IntentRequest, data: Data?, object: inout Any?, httpResponse: inout HTTPURLResponse?, error: inout NSError?, completion: Response, flags: [String:Any]?) -> Bool
 }
 
 public protocol IntentRequest: AnyObject {
     var retries: Int { get set }
-    var url: NSURL? { get }
-    func start(completion: Response)
+    var url: URL? { get }
+    func start(_ completion: Response)
 }
 
 // MARK: - class Intent -
@@ -64,7 +64,7 @@ public protocol IntentRequest: AnyObject {
 public class Intent {
     public let name: String
     public let uid: UInt
-    public let session: NSURLSession
+    public let session: URLSession
     public let provider: IntentProvider
     private var detached_uid: UInt = 0
     public var finishTasksAndInvalidateSessionOnDeinit: Bool = false
@@ -94,12 +94,12 @@ public class Intent {
 // MARK: - API -
     public func detach() -> Intent {
         if uid != 0 {
-            NSException(name: "IntentDetachException", reason: "Can't detach from a detached Intent", userInfo: nil).raise()
+            NSException(name: "IntentDetachException" as NSExceptionName, reason: "Can't detach from a detached Intent", userInfo: nil).raise()
         }
         
         var newUid: UInt = 0
         
-        dispatch_sync(lockQueue) {
+        lockQueue.sync {
             self.detached_uid += 1
             newUid = self.detached_uid
         }
@@ -114,13 +114,13 @@ internal class IRequest : Request, IntentRequest {
     var retries: Int = 4
     
 // MARK: - init -
-    init(intent: Intent, session: NSURLSession? = nil, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
+    init(intent: Intent, session: URLSession? = nil, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
         self.intent = intent
         super.init(session: session ?? intent.session, httpMethod: httpMethod, flags: flags)
     }
     
 // MARK: - overrides -
-    internal override func executeControlPointClosure(work: ControlPoint) {
+    internal override func executeControlPointClosure(_ work: ControlPoint) {
         if let intent = intent, let provider = intent.provider as? IntentControlPoint {
             provider.controlPoint(intent, toBeExecuted: work)
         } else {
@@ -134,14 +134,14 @@ internal class IRequest : Request, IntentRequest {
         }
     }
     
-    internal override func configureURLRequest(urlRequest: NSMutableURLRequest, completion: Response) throws {
+    internal override func configureURLRequest(_ urlRequest: NSMutableURLRequest, completion: Response) throws {
         if let intent = intent, let provider = intent.provider as? IntentConfigureURLRequest {
             try provider.configureURLRequest(urlRequest, request: self, intent: intent, flags: flags, completion: completion)
         }
     }
 
     
-    internal override func didReceiveData(data: NSData?, inout object: Any?, inout httpResponse: NSHTTPURLResponse?, inout error: NSError?, completion: Response) -> Bool {
+    internal override func didReceiveData(_ data: Data?, object: inout Any?, httpResponse: inout HTTPURLResponse?, error: inout NSError?, completion: Response) -> Bool {
         if let intent = intent, let provider = intent.provider as? IntentReceivedData {
             return provider.receivedData(intent, request: self, data: data, object: &object, httpResponse: &httpResponse, error: &error, completion: completion, flags: self.flags)
         }
@@ -161,11 +161,11 @@ internal class IRequest : Request, IntentRequest {
 // MARK: - Request extension -
 
 public extension Request {
-    public class func requestWithIntent(intent: Intent?, session: NSURLSession? = nil, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
+    public class func requestWithIntent(_ intent: Intent?, session: URLSession? = nil, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) -> Request {
         if let intent = intent {
             return IRequest(intent: intent, session: session, httpMethod: httpMethod, flags: flags)
         } else {
-            return Request(session: session ?? NSURLSession.sharedSession(), httpMethod: httpMethod, flags: flags)
+            return Request(session: session ?? URLSession.shared, httpMethod: httpMethod, flags: flags)
         }
     }
 }

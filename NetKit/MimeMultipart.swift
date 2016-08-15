@@ -18,7 +18,7 @@ public enum MultipartMimeTypes : String {
 }
 
 private func randomBoundary() -> String {
-    return String(format: "NETKit.boundary.%08x%08x", random(), random())
+    return String(format: "NETKit.boundary.%08x%08x", arc4random(), arc4random())
 }
 
 
@@ -40,7 +40,7 @@ public class MimeMultipart : MimePart {
 
     
     public override class func creationClosure() -> CreationClosure {
-        return { (data: NSData) -> MimePart? in
+        return { (data: Data) -> MimePart? in
             return nil
         }
     }
@@ -49,35 +49,35 @@ public class MimeMultipart : MimePart {
         return MultipartMimeTypes.allValues.map { $0.rawValue }
     }
     
-    override public func dataRepresentation( completion: (data: NSData?) -> Void) {
+    override public func dataRepresentation( _ completion: (data: Data?) -> Void) {
         guard parts.count > 0 else {
             completion(data: nil)
             return
         }
         
         let content = NSMutableData()
-        content.appendData("--\(boundary)\r\n".dataUsingEncoding(NSUTF8StringEncoding)!)
+        content.append("--\(boundary)\r\n".data(using: String.Encoding.utf8)!)
         
-        for (index, part) in parts.enumerate() {
+        for (index, part) in parts.enumerated() {
             for (key, value) in part.headers {
-                content.appendData("\(key): \(value)\r\n".dataUsingEncoding(NSUTF8StringEncoding)!)
+                content.append("\(key): \(value)\r\n".data(using: String.Encoding.utf8)!)
             }
             
-            content.appendData("Content-Type: \(part.mimeType)\r\n\r\n".dataUsingEncoding(NSUTF8StringEncoding)!)
-            part.dataRepresentation { (data: NSData?) in
+            content.append("Content-Type: \(part.mimeType)\r\n\r\n".data(using: String.Encoding.utf8)!)
+            part.dataRepresentation { (data: Data?) in
                 if let data = data {
-                    content.appendData(data)
+                    content.append(data)
                 } else {
                     DLog("*** unable to get data from part \(part) ***")
                 }
             }
             
-            content.appendData("\r\n--\(boundary)\(index == self.parts.count - 1 ? "--" : "")\r\n".dataUsingEncoding(NSUTF8StringEncoding)!)
+            content.append("\r\n--\(boundary)\(index == self.parts.count - 1 ? "--" : "")\r\n".data(using: String.Encoding.utf8)!)
 
 
         }
         
-        completion(data: content)
+        completion(data: content as Data)
     }
     
     override var mimeType: String {
