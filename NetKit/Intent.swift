@@ -111,7 +111,7 @@ public class Intent {
 // MARK: - class IRequest -
 internal class IRequest : Request, IntentRequest {
     weak var intent: Intent?
-    var retries: Int = 4
+    var retries: Int = 1
     
 // MARK: - init -
     init(intent: Intent, session: URLSession? = nil, httpMethod: HTTPMethod = .get, flags: [String:Any]? = nil) {
