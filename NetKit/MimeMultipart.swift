@@ -49,9 +49,9 @@ public class MimeMultipart : MimePart {
         return MultipartMimeTypes.allValues.map { $0.rawValue }
     }
     
-    override public func dataRepresentation( _ completion: (data: Data?) -> Void) {
+    override public func dataRepresentation( _ completion: (_ data: Data?) -> Void) {
         guard parts.count > 0 else {
-            completion(data: nil)
+            completion(nil)
             return
         }
         
@@ -77,7 +77,7 @@ public class MimeMultipart : MimePart {
 
         }
         
-        completion(data: content as Data)
+        completion(content as Data)
     }
     
     override var mimeType: String {

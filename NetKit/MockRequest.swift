@@ -59,7 +59,7 @@ class MockRequest : IRequest {
         self.init(url: url, intent: intent, session: session, httpMethod: httpMethod, flags: flags)
     }
     
-    override func start(_ completion: Response) {
+    override func start(_ completion: @escaping Response) {
         
         let request = Request()
         request.url = responseURL
@@ -68,9 +68,9 @@ class MockRequest : IRequest {
             
             if let data = object as? Data,
                 let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) {
-                        completion(object: json, httpResponse: httpResponse, error: error)
+                        completion(json, httpResponse, error)
             } else {
-                completion(object: nil, httpResponse: httpResponse, error: error)
+                completion(nil, httpResponse, error)
             }
         }
     }

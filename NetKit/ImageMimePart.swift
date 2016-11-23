@@ -61,17 +61,17 @@ public class ImageMimePart : MimePart {
         return ["image/png", "image/jpg", "image/jpeg", "image/gif", "image/tiff", "image/tif", "image/*"]
     }
     
-    override public func dataRepresentation( _ completion: (data: Data?) -> Void) {
+    override public func dataRepresentation( _ completion: (_ data: Data?) -> Void) {
         if let imageData = UIImagePNGRepresentation(self.image) {
             if base64 {
                 let base64String = imageData.base64EncodedString(options: [])
                 let json = ["image":base64String]
                 if let jsonData = try? JSONSerialization.data(withJSONObject: json, options: []) {
-                    completion(data: jsonData)
+                    completion(jsonData)
                     return
                 }
             } else {
-                completion(data: imageData)
+                completion(imageData)
                 return
             }
         }

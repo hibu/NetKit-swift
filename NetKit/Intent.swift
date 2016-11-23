@@ -23,7 +23,7 @@ public protocol IntentConfigureURLRequest : IntentProvider {
 }
 
 public protocol IntentControlPoint : IntentProvider {
-    func controlPoint(_ intent: Intent, toBeExecuted: (() -> Void) -> Void)
+    func controlPoint(_ intent: Intent, toBeExecuted: ControlPoint)
 }
 
 public protocol IntentReceivedData : IntentProvider {
@@ -33,7 +33,7 @@ public protocol IntentReceivedData : IntentProvider {
 public protocol IntentRequest: AnyObject {
     var retries: Int { get set }
     var url: URL? { get }
-    func start(_ completion: Response)
+    func start(_ completion: @escaping (_ object: Any?, _ response: HTTPURLResponse?, _ error: NSError?) -> Void)
 }
 
 // MARK: - class Intent -
@@ -94,7 +94,7 @@ public class Intent {
 // MARK: - API -
     public func detach() -> Intent {
         if uid != 0 {
-            NSException(name: "IntentDetachException" as NSExceptionName, reason: "Can't detach from a detached Intent", userInfo: nil).raise()
+            NSException(name: NSExceptionName("IntentDetachException"), reason: "Can't detach from a detached Intent", userInfo: nil).raise()
         }
         
         var newUid: UInt = 0
@@ -110,6 +110,11 @@ public class Intent {
 
 // MARK: - class IRequest -
 internal class IRequest : Request, IntentRequest {
+    
+    public override func start(_ completion: @escaping (_ object: Any?, _ response: HTTPURLResponse?, _ error: NSError?) -> Void) {
+        super.start(completion)
+    }
+
     weak var intent: Intent?
     var retries: Int = 1
     

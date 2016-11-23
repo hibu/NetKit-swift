@@ -38,12 +38,12 @@ public class JSONMimePart : MimePart {
         if let data = jsonString.data(using: String.Encoding.utf8) {
             try self.init(jsonData: data)
         } else {
-            throw CocoaError(.formattingError)
+            throw CocoaError(.formatting)
         }
     }
     
-    override public func dataRepresentation( _ completion: (data: Data?) -> Void) {
-        completion(data: jsonData)
+    override public func dataRepresentation( _ completion: (_ data: Data?) -> Void) {
+        completion(jsonData)
     }
     
     override class func mimeTypes() -> [String] {

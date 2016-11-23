@@ -8,7 +8,7 @@
 
 import Foundation
 
-public typealias Response = (object: Any?, httpResponse: HTTPURLResponse?, error: NSError?) -> Void
+public typealias Response = (_ object: Any?, _ httpResponse: HTTPURLResponse?, _ error: NSError?) -> Void
 public typealias Completion = () -> Void
 public typealias ControlPoint = (Completion?) -> Void
 
@@ -29,7 +29,7 @@ private func assignUID() -> Int {
     return uid
 }
 
-public func executeOnMainThread( _ closure: () -> Void ) {
+public func executeOnMainThread( _ closure: @escaping () -> Void ) {
     if Thread.isMainThread {
         closure()
     } else {
@@ -143,7 +143,7 @@ public class Request {
     
 // MARK: - API -
     
-    public func start(_ completion: Response) {
+    public func start(_ completion: @escaping Response) {
         if executing {
             fatalError("start called on a request already started")
         }
@@ -155,7 +155,7 @@ public class Request {
         
     }
     
-    public func startUpload(_ task: (URLSessionUploadTask) -> Void) {
+    public func startUpload(_ task: @escaping (URLSessionUploadTask) -> Void) {
         if executing {
             fatalError("start called on a request already started")
         }
@@ -215,7 +215,7 @@ public class Request {
         DispatchQueue.main.async { () -> Void in
             DLog("\n")
             DLog("****** \(self.method) REQUEST #\(self.uid) \(desc) ******")
-            DLog(NSString(format:"URL = %@", self.url == nil ? "" : self.url!))
+            DLog(NSString(format:"URL = %@", self.url == nil ? "" : self.url!.absoluteString))
             DLog("Headers = \(self.headers)")
             self.body?.dataRepresentation { (data) -> Void in
                 if let data = data {
@@ -238,7 +238,7 @@ public class Request {
             
             DLog("\n")
             DLog("****** RESPONSE #\(self.uid) status: \(statusStr) ******")
-            DLog(NSString(format:"URL = %@", self.url == nil ? "" : self.url!))
+            DLog(NSString(format:"URL = %@", self.url == nil ? "" : self.url!.absoluteString))
             if let headers = headers {
             DLog("Headers = \(headers)")
             }
@@ -258,7 +258,7 @@ public class Request {
             }
             
             let formatter = ByteCountFormatter()
-            var sizeString = formatter.stringFromByteCount(Int64(size))
+            var sizeString = formatter.string(fromByteCount: Int64(size))
             
             if let encoding = headers?["content-encoding"] {
                 sizeString = "\(encoding) \(sizeString)"
@@ -272,7 +272,7 @@ public class Request {
             
             if let data = data, self.logRawResponseData || logRaw {
                 if let dataStr = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
-                    DLog(NSString(format:"Body (raw, \(sizeString)) = %@", dataStr))
+                    DLog(NSString(format:"Body (raw, \(sizeString)) = %@" as NSString, dataStr))
                 } else {
                     DLog("Body (raw, \(sizeString)) = \(data)")
                 }
@@ -284,7 +284,7 @@ public class Request {
     
     
 // MARK: - private methods -
-    private func completeWithObject(_ object: Any?, data: Data?, httpResponse: HTTPURLResponse?, error: NSError?, completion:Response) {
+    private func completeWithObject(_ object: Any?, data: Data?, httpResponse: HTTPURLResponse?, error: NSError?, completion:@escaping Response) {
         
         var theObject = object
         var theHttpResponse = httpResponse
@@ -293,7 +293,7 @@ public class Request {
         if didReceiveData(data, object:&theObject, httpResponse: &theHttpResponse, error: &theError, completion:completion) {
         
             let response = { () -> Void in
-                completion(object: theObject, httpResponse: theHttpResponse, error: theError)
+                completion(theObject, theHttpResponse, theError)
             }
             
             if completesOnGlobalQueue {
@@ -307,7 +307,7 @@ public class Request {
         _request = nil
     }
     
-    private func urlRequest(_ completion: (NSMutableURLRequest?) -> Void) {
+    private func urlRequest(_ completion: @escaping (NSMutableURLRequest?) -> Void) {
         guard let url = self.url else { completion(nil); return }
         
         let mRequest = NSMutableURLRequest(url: url)
@@ -341,7 +341,7 @@ public class Request {
         }
     }
     
-    private func controlPointClosure(_ responseCompletion: Response) -> ControlPoint {
+    private func controlPointClosure(_ responseCompletion: @escaping Response) -> ControlPoint {
         return { (workCompletion: Completion?) -> Void in
             
             let work = self.mainThreadClosure(responseCompletion, workCompletion: workCompletion)
@@ -349,7 +349,7 @@ public class Request {
         }
     }
     
-    private func mainThreadClosure(_ completion: Response, workCompletion: Completion?) -> Completion {
+    private func mainThreadClosure(_ completion: @escaping Response, workCompletion: Completion?) -> Completion {
         return { _ in
             
             if self.cancelled {
@@ -385,7 +385,7 @@ public class Request {
         }
     }
 
-    private func executeDataTaskWithURLRequest(_ urlRequest: NSMutableURLRequest, completion: Response, workCompletion: Completion?) {
+    private func executeDataTaskWithURLRequest(_ urlRequest: NSMutableURLRequest, completion: @escaping Response, workCompletion: Completion?) {
         do {
             try configureURLRequest(urlRequest, completion: completion)
         } catch let error as NSError {
@@ -407,7 +407,7 @@ public class Request {
             } else {
             // this call will raise an exception if the session is invalid
                 self.dataTask = self.session.dataTask(with: urlRequest as URLRequest) { (data, response, error) in
-                    self.processResponseData(data, urlResponse: response, error: error, completion: completion)
+                    self.processResponseData(data, urlResponse: response, error: error as NSError?, completion: completion)
                     self.executeCompletion(workCompletion)
                 }
             }
@@ -440,7 +440,7 @@ public class Request {
         }
     }
 
-    public func processResponseData(_ data: Data?, urlResponse: URLResponse?, error: NSError?, completion: Response) {
+    public func processResponseData(_ data: Data?, urlResponse: URLResponse?, error: NSError?, completion: @escaping Response) {
         
         DispatchQueue.main.async {
             NotificationCenter.default.post(name: Notification.Name(rawValue: NETRequestDidEndNotification), object:self)
@@ -503,7 +503,7 @@ public class Request {
         var encoding = String.Encoding.utf8
         
         if let charset = charset {
-            let coding = CFStringConvertIANACharSetNameToEncoding(charset)
+            let coding = CFStringConvertIANACharSetNameToEncoding(charset as CFString!)
             encoding = String.Encoding(rawValue: CFStringConvertEncodingToNSStringEncoding(coding))
         }
         
@@ -513,7 +513,7 @@ public class Request {
         
         for (mimeType, closure) in MimePart.subclasses() {
             if mimeType == type {
-                if let result = closure(data: data) {
+                if let result = closure(data) {
                     return result.content
                 }
             }
@@ -535,13 +535,13 @@ public class Request {
 
 extension Request : CustomStringConvertible {
     public var description : String {
-        return "\(self.dynamicType) #\(uid)"
+        return "\(type(of: self)) #\(uid)"
     }
 }
 
 extension Request : CustomDebugStringConvertible {
     public var debugDescription : String {
-        return "\(self.dynamicType) #\(uid) (\(unsafeAddress(of: self))) - \(url)"
+        return "\(type(of: self)) #\(uid) (\(Unmanaged.passUnretained(self).toOpaque())) - \(url)"
     }
 }
 

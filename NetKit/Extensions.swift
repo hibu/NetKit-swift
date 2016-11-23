@@ -21,7 +21,7 @@ public func DLog<T>(_ message:T, file:String = #file, function:String = #functio
             var prefix = formatter.string(from: Date())
             
             if showFile {
-                let file: NSString = file
+                let file = file as NSString
                 prefix = prefix + " " + file.lastPathComponent
             }
             
