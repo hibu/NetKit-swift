@@ -8,12 +8,12 @@
 
 import Foundation
 
-public typealias Response = (_ object: Any?, _ httpResponse: HTTPURLResponse?, _ error: NSError?) -> Void
+public typealias Response = (_ object: Any?, _ httpResponse: HTTPURLResponse?, _ error: Error?) -> Void
 public typealias Completion = () -> Void
 public typealias ControlPoint = (Completion?) -> Void
 
-public let NETRequestDidStartNotification = "NETRequestDidStartNotification"
-public let NETRequestDidEndNotification = "NETRequestDidEndNotification"
+public let NETRequestDidStartNotification = Notification.Name("NETRequestDidStartNotification")
+public let NETRequestDidEndNotification = Notification.Name("NETRequestDidEndNotification")
 
 private var gUID = 1
 internal let lockQueue = DispatchQueue(label: "com.hibu.NetKit.Request.lock", qos: .default)
@@ -185,7 +185,7 @@ public class Request {
         work(nil)
     }
     
-    public func didReceiveData(_ data: Data?, object: inout Any?, httpResponse: inout HTTPURLResponse?, error: inout NSError?, completion: Response) -> Bool {
+    public func didReceiveData(_ data: Data?, object: inout Any?, httpResponse: inout HTTPURLResponse?, error: inout Error?, completion: @escaping Response) -> Bool {
         return true
     }
     
@@ -227,7 +227,7 @@ public class Request {
         }
     }
     
-    public func logResponse(_ object: Any?, data: Data?, httpResponse: HTTPURLResponse?, error: NSError?) {
+    public func logResponse(_ object: Any?, data: Data?, httpResponse: HTTPURLResponse?, error: Error?) {
         DispatchQueue.main.async { () -> Void in
             var logRaw = false
             let headers = httpResponse?.allHeaderFields as? [String:String]
@@ -284,7 +284,7 @@ public class Request {
     
     
 // MARK: - private methods -
-    private func completeWithObject(_ object: Any?, data: Data?, httpResponse: HTTPURLResponse?, error: NSError?, completion:@escaping Response) {
+    private func completeWithObject(_ object: Any?, data: Data?, httpResponse: HTTPURLResponse?, error: Error?, completion:@escaping Response) {
         
         var theObject = object
         var theHttpResponse = httpResponse
@@ -363,7 +363,7 @@ public class Request {
             
             do {
                 try self.configureRequest();
-            } catch let error as NSError {
+            } catch let error {
                 self.completeWithObject(nil, data: nil, httpResponse: nil, error: error, completion: completion)
                 self.executeCompletion(workCompletion)
                 return
@@ -388,7 +388,7 @@ public class Request {
     private func executeDataTaskWithURLRequest(_ urlRequest: NSMutableURLRequest, completion: @escaping Response, workCompletion: Completion?) {
         do {
             try configureURLRequest(urlRequest, completion: completion)
-        } catch let error as NSError {
+        } catch let error {
             self.completeWithObject(nil, data:nil, httpResponse:nil, error:error, completion:completion)
             self.executeCompletion(workCompletion)
             return
@@ -407,7 +407,7 @@ public class Request {
             } else {
             // this call will raise an exception if the session is invalid
                 self.dataTask = self.session.dataTask(with: urlRequest as URLRequest) { (data, response, error) in
-                    self.processResponseData(data, urlResponse: response, error: error as NSError?, completion: completion)
+                    self.processResponseData(data, urlResponse: response, error: error, completion: completion)
                     self.executeCompletion(workCompletion)
                 }
             }
@@ -430,7 +430,7 @@ public class Request {
         }
         
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: NETRequestDidStartNotification), object:self)
+            NotificationCenter.default.post(name: NETRequestDidStartNotification, object:self)
         }
         
         self.dataTask?.resume()
@@ -440,10 +440,10 @@ public class Request {
         }
     }
 
-    public func processResponseData(_ data: Data?, urlResponse: URLResponse?, error: NSError?, completion: @escaping Response) {
+    public func processResponseData(_ data: Data?, urlResponse: URLResponse?, error: Error?, completion: @escaping Response) {
         
         DispatchQueue.main.async {
-            NotificationCenter.default.post(name: Notification.Name(rawValue: NETRequestDidEndNotification), object:self)
+            NotificationCenter.default.post(name: NETRequestDidEndNotification, object:self)
         }
         
         if let httpResponse = urlResponse as? HTTPURLResponse {

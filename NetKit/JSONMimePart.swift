@@ -9,8 +9,8 @@
 import Foundation
 
 public typealias JSONString = String
-public typealias JSONDictionary = [String:AnyObject]
-public typealias JSONArray = [AnyObject]
+public typealias JSONDictionary = [String:Any]
+public typealias JSONArray = [Any]
 
 public class JSONMimePart : MimePart {
     
@@ -29,7 +29,7 @@ public class JSONMimePart : MimePart {
         super.init(mimeType: "application/json;charset=UTF-8")
     }
     
-    public convenience init(jsonDictionary: NSDictionary) throws {
+    public convenience init(jsonDictionary: JSONDictionary) throws {
         let data = try JSONSerialization.data(withJSONObject: jsonDictionary, options: .prettyPrinted)
         try self.init(jsonData: data)
     }

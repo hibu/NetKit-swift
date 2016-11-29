@@ -27,13 +27,13 @@ public protocol IntentControlPoint : IntentProvider {
 }
 
 public protocol IntentReceivedData : IntentProvider {
-    func receivedData(_ intent: Intent, request:IntentRequest, data: Data?, object: inout Any?, httpResponse: inout HTTPURLResponse?, error: inout NSError?, completion: Response, flags: [String:Any]?) -> Bool
+    func receivedData(intent: Intent, request:IntentRequest, data: Data?, object: inout Any?, response: inout HTTPURLResponse?, error: inout Error?, completion: @escaping Response, flags: [String:Any]?) -> Bool
 }
 
 public protocol IntentRequest: AnyObject {
     var retries: Int { get set }
     var url: URL? { get }
-    func start(_ completion: @escaping (_ object: Any?, _ response: HTTPURLResponse?, _ error: NSError?) -> Void)
+    func start(_ completion: @escaping (_ object: Any?, _ response: HTTPURLResponse?, _ error: Error?) -> Void)
 }
 
 // MARK: - class Intent -
@@ -111,7 +111,7 @@ public class Intent {
 // MARK: - class IRequest -
 internal class IRequest : Request, IntentRequest {
     
-    public override func start(_ completion: @escaping (_ object: Any?, _ response: HTTPURLResponse?, _ error: NSError?) -> Void) {
+    public override func start(_ completion: @escaping (_ object: Any?, _ response: HTTPURLResponse?, _ error: Error?) -> Void) {
         super.start(completion)
     }
 
@@ -146,9 +146,9 @@ internal class IRequest : Request, IntentRequest {
     }
 
     
-    internal override func didReceiveData(_ data: Data?, object: inout Any?, httpResponse: inout HTTPURLResponse?, error: inout NSError?, completion: Response) -> Bool {
+    internal override func didReceiveData(_ data: Data?, object: inout Any?, httpResponse: inout HTTPURLResponse?, error: inout Error?, completion: @escaping Response) -> Bool {
         if let intent = intent, let provider = intent.provider as? IntentReceivedData {
-            return provider.receivedData(intent, request: self, data: data, object: &object, httpResponse: &httpResponse, error: &error, completion: completion, flags: self.flags)
+            return provider.receivedData(intent: intent, request: self, data: data, object: &object, response: &httpResponse, error: &error, completion: completion, flags: self.flags)
         }
         return true
     }
