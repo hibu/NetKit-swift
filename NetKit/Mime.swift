@@ -144,7 +144,7 @@ public struct ImageMimeConverter: MimeConverter {
         }
     }
     
-    init(image: UIImage) {
+    public init(image: UIImage) {
         self.image = image
     }
     
@@ -246,7 +246,37 @@ public struct MultipartMimeConverter: MimeConverter {
     }
 }
 
-public let converters: [MimeConverter.Type] = [JSONMimeConverter.self, ImageMimeConverter.self]
+public struct HTMLMimeConverter: MimeConverter {
+    public var headers: [String : String] = [:]
+    private var html: String
+
+    public static var mimeTypes: Set<String> {
+        get {
+            return ["text/html"]
+        }
+    }
+    
+    public var mimeType: String {
+        get {
+            return "text/html;charset=UTF-8"
+        }
+    }
+
+
+    public func convert() throws -> Data {
+        return self.html.data(using: String.Encoding.utf8)!
+    }
+
+    public static func convert(data: Data) throws -> Any {
+        return String(data: data, encoding: String.Encoding.utf8) ?? ""
+    }
+    
+    init(html: String) {
+        self.html = html
+    }
+}
+
+public let converters: [MimeConverter.Type] = [JSONMimeConverter.self, ImageMimeConverter.self, HTMLMimeConverter.self]
 
 
 

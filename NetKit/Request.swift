@@ -28,8 +28,24 @@ public enum HTTPMethod: String {
     case options = "OPTIONS"
 }
 
+public protocol SessionDescriptor {}
+
+fileprivate class Session: SessionDescriptor {
+    let identifier: String
+    let session: URLSession
+    
+    init(identifier: String, session: URLSession) {
+        self.identifier = identifier
+        self.session = session
+    }
+    
+    deinit {
+        session.invalidateAndCancel()
+    }
+}
+
 public protocol ViewControllerSession: class {
-    var session: URLSession? { get set }
+    var sessions: [String:SessionDescriptor]? { get set }
 }
 
 public protocol MockManaging {
@@ -43,10 +59,12 @@ public protocol MockRecording: MockManaging {
     func store(data: Data, response: HTTPURLResponse, forKey key: String)
 }
 
-public protocol Endpoint: class {}
+public protocol Endpoint: class {
+    var identifier: String { get }
+}
 
 public protocol EndpointSession: Endpoint {
-    func session(forRequest request: Request?, viewController: ViewControllerSession?, flags: Plist?) -> URLSession
+    func session(forRequest request: Request?, flags: Plist?) -> URLSession
 }
 
 public protocol EndpointMockManager: Endpoint {
@@ -58,7 +76,7 @@ public protocol EndpointConfiguration: Endpoint {
 }
 
 public protocol EndpointControl: Endpoint {
-    func control(request: Request, flags: Plist?, completion: (Bool, (() -> Void)?) -> Void)
+    func control(request: Request, flags: Plist?, completion: @escaping (Bool, (() -> Void)?) -> Void)
 }
 
 public protocol EndpointURLRequestConfiguration: Endpoint {
@@ -66,21 +84,18 @@ public protocol EndpointURLRequestConfiguration: Endpoint {
 }
 
 public protocol EndpointResponseParsing: Endpoint {
-    func parse(object: inout Any?, data: inout Data?, httpResponse: inout HTTPURLResponse?, error: inout Error?, completion: (Any?, HTTPURLResponse?, Error?) -> Void) -> Bool
+    func parse(object: inout Any?, data: inout Data?, request: Request, response: inout HTTPURLResponse?, error: inout Error?, flags: Plist?, completion: @escaping (Any?, HTTPURLResponse?, Error?) -> Void) -> Bool
 }
 
-public protocol BackgroundURLSession {
-    // make your app delegate conform to this protocol to get the implementation
-    // of the application(handleEventsForBackgroundURLSession:) method (defined below)
-}
+@objc public protocol BackgroundURLSession {}
 
 public extension BackgroundURLSession {
     
-    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
+    func handleEventsForBackgroundURLSession(identifier: String, completionHandler: @escaping () -> Void) {
         
         // recreate or get the session used for the background transfer
         if let endpoint = backgroundTransferEndpoints[identifier] {
-            let _ = endpoint.session(forRequest: nil, viewController: nil, flags: nil)
+            let _ = endpoint.session(forRequest: nil, flags: nil)
         }
         
         // give time for the UI to update itself
@@ -92,8 +107,68 @@ public extension BackgroundURLSession {
 
 fileprivate var backgroundTransferEndpoints: [String:EndpointSession] = [:]
 
-public func register(backgroundTransferEndpoint endpoint: EndpointSession, urlSessionIdentifier identifier: String) {
-    backgroundTransferEndpoints[identifier] = endpoint
+public func register(backgroundTransferEndpoint endpoint: EndpointSession) {
+    backgroundTransferEndpoints[endpoint.identifier] = endpoint
+}
+
+extension HTTPURLResponse: Error {}
+
+extension Error {
+    public var response: HTTPURLResponse? {
+        return self as? HTTPURLResponse
+    }
+}
+
+public enum Result<T> {
+    case success(T)
+    case failure(Error)
+    
+    init(value: T) {
+        self = .success(value)
+    }
+    
+    init(error: Error) {
+        self = .failure(error)
+    }
+    
+    public init(_ value: T?, failWith: @autoclosure () -> Error) {
+        self = value.map(Result.success) ?? .failure(failWith())
+    }
+    
+    public init(_ f: @autoclosure () throws -> T) {
+        self.init(attempt: f)
+    }
+    
+    public init(attempt f: () throws -> T) {
+        do {
+            self = .success(try f())
+        } catch {
+            self = .failure(error)
+        }
+    }
+    
+    func flatMap<U>(_ transform: (T) -> Result<U>) -> Result<U> {
+        switch self {
+        case .success(let value): return transform(value)
+        case .failure(let error): return .failure(error)
+        }
+    }
+    
+    func withSuccess(closure: (T) -> Void) -> Result<T> {
+        switch self {
+        case .success(let value): closure(value)
+        default:()
+        }
+        return self
+    }
+    
+    func withFailure(closure: (Error) -> Void) -> Result<T> {
+        switch self {
+        case .failure(let error): closure(error)
+        default:()
+        }
+        return self
+    }
 }
 
 open class Request {
@@ -103,7 +178,7 @@ open class Request {
     public let method: HTTPMethod
     public let uid: Int
     public var flags: [String:Any]?
-    public var quiet: Bool = true
+    public var quiet: Bool = false
     public var urlBuilder = URLComponents()
     public var headers: [String : Any] = [:]
     public var body: MimeConverter?
@@ -124,6 +199,7 @@ open class Request {
     fileprivate var dataTask: URLSessionDataTask?
     fileprivate var completionQueue: DispatchQueue = Queue.main
     fileprivate var taskGroup: DispatchGroup
+    fileprivate static var sessions: [String:URLSession] = [:]
     
     
     class func generateUid() -> Int {
@@ -135,8 +211,22 @@ open class Request {
         return uid
     }
     
+    public class func session(for endpoint: Endpoint) -> URLSession? {
+        if let session = sessions[endpoint.identifier] {
+            return session
+        } else {
+            if let endpoint = endpoint as? EndpointSession {
+                let session = endpoint.session(forRequest: nil, flags: nil)
+                sessions[endpoint.identifier] = session
+                return session
+            }
+        }
+        return nil
+    }
+    
     public init(endpoint: Endpoint? = nil, session: URLSession = URLSession.shared, method: HTTPMethod = .get, flags: [String:Any]? = nil) {
         
+        self.endpoint = endpoint
         self.session = session
         self.method = method
         self.uid = Request.generateUid()
@@ -178,8 +268,8 @@ open class Request {
         }
     }
     
-    public func addHeaders(newHeaders: [String:Any]) {
-        newHeaders.forEach { self.headers[$0] = $1 }
+    public func add(headers: [String:Any]) {
+        headers.forEach { self.headers[$0] = $1 }
     }
     
     fileprivate func urlRequest() -> URLRequest? {
@@ -197,7 +287,7 @@ open class Request {
                 urlRequest.httpBody = data
                 let length: String = String(format: "%ld", data.count)
                 let type: String = body.mimeType
-                self.addHeaders(newHeaders: ["content-length" : length, "content-type" : type])
+                self.add(headers: ["content-length" : length, "content-type" : type])
             }
         }
         
@@ -211,6 +301,16 @@ open class Request {
 }
 
 extension Request {
+    
+    public func begin<T>(queue: DispatchQueue = Queue.main, result: @escaping (Result<T>) -> Void) {
+        self.start(queue: queue) { (value: T?, response, error) in
+            if let value = value, let response = response, 200...201 ~= response.statusCode {
+                result(Result(value: value))
+            } else {
+                result(Result(error: response ?? error!))
+            }
+        }
+    }
     
     public func start<T>(queue: DispatchQueue = Queue.main, completion: @escaping (T?, HTTPURLResponse?, Error?) -> Void) {
         if executing {
@@ -284,8 +384,34 @@ extension Request {
                 
                 self.executing = true
                 
-                if let sessionEndpoint = self.endpoint as? EndpointSession, self.session == URLSession.shared {
-                    self.session = sessionEndpoint.session(forRequest: self, viewController: self.viewController, flags: self.flags)
+                if self.session == URLSession.shared {
+                    if let viewController = self.viewController, let endpoint = self.endpoint {
+                        if let sessions = viewController.sessions {
+                            if let descriptor = sessions[endpoint.identifier], let sessionDesc = descriptor as? Session {
+                                self.session = sessionDesc.session
+                            }
+                        } else {
+                            viewController.sessions = [:]
+                        }
+                        
+                        if self.session == URLSession.shared {
+                            if let sessionEndpoint = self.endpoint as? EndpointSession {
+                                self.session = sessionEndpoint.session(forRequest: self, flags: self.flags)
+                                viewController.sessions?[endpoint.identifier] = Session(identifier: endpoint.identifier, session: self.session)
+                            }
+                        }
+                    } else {
+                        if let endpoint = self.endpoint {
+                            if let session = type(of:self).sessions[endpoint.identifier] {
+                                self.session = session
+                            } else {
+                                if let sessionEndpoint = self.endpoint as? EndpointSession {
+                                    self.session = sessionEndpoint.session(forRequest: self, flags: self.flags)
+                                    type(of:self).sessions[endpoint.identifier] = self.session
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 if let endpoint = self.endpoint as? EndpointConfiguration {
@@ -339,7 +465,6 @@ extension Request {
                 
                 // this call will raise an obj-c exception if the session is invalid
                 self.dataTask = self.session.uploadTask(with: finalURLRequest, fromFile: url)
-                self.taskGroup.leave()
             } else {
                 // this call will raise an obj-c exception if the session is invalid
                 self.dataTask = self.session.dataTask(with: finalURLRequest) { (data, response, error) in
@@ -348,7 +473,6 @@ extension Request {
                         throttledQueueCompletion?()
                     }
                 }
-                self.taskGroup.leave()
             }
             
         }, { (exception: NSException) in
@@ -370,6 +494,10 @@ extension Request {
         
         self.dataTask?.resume()
         post(notificationNamed: RequestDidStartNotification)
+        
+        if self.upload {
+            self.taskGroup.leave()
+        }
     }
     
     private func parse<T>(data: Data?, urlResponse: URLResponse?, error: Error?, mock: Bool = false, completion: @escaping (T?, HTTPURLResponse?, Error?) -> Void) {
@@ -411,7 +539,7 @@ extension Request {
             self.dataTask = nil
             
             
-            self.complete(object: object, data: data, httpResponse: httpResponse, error: error, completion: completion)
+            self.complete(object: object, data: data, response: httpResponse, error: error, completion: completion)
         } else if let error = error {
             if !self.quiet {
                 self.logResponse(object: nil, data: nil, httpResponse: nil, error: error)
@@ -422,11 +550,11 @@ extension Request {
     }
     
     
-    private func complete<T>(object: Any? = nil, data: Data? = nil, httpResponse: HTTPURLResponse? = nil, error: Error? = nil, completion:@escaping (T?, HTTPURLResponse?, Error?) -> Void) {
+    private func complete<T>(object: Any? = nil, data: Data? = nil, response: HTTPURLResponse? = nil, error: Error? = nil, completion:@escaping (T?, HTTPURLResponse?, Error?) -> Void) {
         
         var theObject = object
         var theData = data
-        var theHttpResponse = httpResponse
+        var theResponse = response
         var theError = error
         
         if let endpoint = endpoint as? EndpointResponseParsing {
@@ -435,7 +563,7 @@ extension Request {
                 completion(object as? T, httpResponse, error)
             }
             
-            let proceed = endpoint.parse(object: &theObject, data: &theData, httpResponse: &theHttpResponse, error: &theError, completion: complete)
+            let proceed = endpoint.parse(object: &theObject, data: &theData, request: self, response: &theResponse, error: &theError, flags: flags, completion: complete)
             
             if !proceed {
                 return
@@ -443,7 +571,7 @@ extension Request {
         }
         
         completionQueue.async {
-            completion(theObject != nil ? theObject as? T : theData as? T, theHttpResponse, theError)
+            completion(theObject != nil ? theObject as? T : theData as? T, theResponse, theError)
         }
     }
     
