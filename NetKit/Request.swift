@@ -154,7 +154,7 @@ public enum Result<T> {
         }
     }
     
-    public func withSuccess(closure: (T) -> Void) -> Result<T> {
+    @discardableResult public func withSuccess(closure: (T) -> Void) -> Result<T> {
         switch self {
         case .success(let value): closure(value)
         default:()
@@ -162,7 +162,7 @@ public enum Result<T> {
         return self
     }
     
-    public func withFailure(closure: (Error) -> Void) -> Result<T> {
+    @discardableResult public func withFailure(closure: (Error) -> Void) -> Result<T> {
         switch self {
         case .failure(let error): closure(error)
         default:()
