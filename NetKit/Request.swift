@@ -123,11 +123,11 @@ public enum Result<T> {
     case success(T)
     case failure(Error)
     
-    init(value: T) {
+    public init(value: T) {
         self = .success(value)
     }
     
-    init(error: Error) {
+    public init(error: Error) {
         self = .failure(error)
     }
     
@@ -147,14 +147,14 @@ public enum Result<T> {
         }
     }
     
-    func flatMap<U>(_ transform: (T) -> Result<U>) -> Result<U> {
+    public func flatMap<U>(_ transform: (T) -> Result<U>) -> Result<U> {
         switch self {
         case .success(let value): return transform(value)
         case .failure(let error): return .failure(error)
         }
     }
     
-    func withSuccess(closure: (T) -> Void) -> Result<T> {
+    public func withSuccess(closure: (T) -> Void) -> Result<T> {
         switch self {
         case .success(let value): closure(value)
         default:()
@@ -162,7 +162,7 @@ public enum Result<T> {
         return self
     }
     
-    func withFailure(closure: (Error) -> Void) -> Result<T> {
+    public func withFailure(closure: (Error) -> Void) -> Result<T> {
         switch self {
         case .failure(let error): closure(error)
         default:()
