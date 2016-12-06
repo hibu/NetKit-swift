@@ -111,16 +111,10 @@ public func register(backgroundTransferEndpoint endpoint: EndpointSession) {
     backgroundTransferEndpoints[endpoint.identifier] = endpoint
 }
 
-extension HTTPURLResponse: Error {}
-
-extension Error {
-    public var response: HTTPURLResponse? {
-        return self as? HTTPURLResponse
-    }
-}
 
 public enum Result<T> {
     case success(T)
+    case issue(HTTPURLResponse)
     case failure(Error)
     
     public init(value: T) {
@@ -131,10 +125,10 @@ public enum Result<T> {
         self = .failure(error)
     }
     
-    public init(_ value: T?, failWith: @autoclosure () -> Error) {
-        self = value.map(Result.success) ?? .failure(failWith())
+    public init(response: HTTPURLResponse) {
+        self = .issue(response)
     }
-    
+
     public init(_ f: @autoclosure () throws -> T) {
         self.init(attempt: f)
     }
@@ -150,6 +144,7 @@ public enum Result<T> {
     public func flatMap<U>(_ transform: (T) -> Result<U>) -> Result<U> {
         switch self {
         case .success(let value): return transform(value)
+        case .issue(let response): return .issue(response)
         case .failure(let error): return .failure(error)
         }
     }
@@ -157,6 +152,14 @@ public enum Result<T> {
     @discardableResult public func withSuccess(closure: (T) -> Void) -> Result<T> {
         switch self {
         case .success(let value): closure(value)
+        default:()
+        }
+        return self
+    }
+    
+    @discardableResult public func withIssue(closure: (HTTPURLResponse) -> Void) -> Result<T> {
+        switch self {
+        case .issue(let response): closure(response)
         default:()
         }
         return self
@@ -306,8 +309,12 @@ extension Request {
         self.start(queue: queue) { (value: T?, response, error) in
             if let value = value, let response = response, 200...201 ~= response.statusCode {
                 result(Result(value: value))
+            } else if let response = response {
+                result(Result(response: response))
+            } else if let error = error {
+                result(Result(error: error))
             } else {
-                result(Result(error: response ?? error!))
+                assert(false, "no error and no HTTPURLResponse")
             }
         }
     }
