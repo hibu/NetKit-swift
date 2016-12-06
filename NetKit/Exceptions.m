@@ -1,9 +1,9 @@
 //
 //  Exceptions.m
-//  NetKit
+//  NetKit2
 //
-//  Created by Marc Palluat de Besset on 14/12/2015.
-//  Copyright © 2015 hibu. All rights reserved.
+//  Created by Marc Palluat de Besset on 22/09/2016.
+//  Copyright © 2016 hibu. All rights reserved.
 //
 
 #import "Exceptions.h"

@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import netkit
+@testable import NetKit
 
 class netkitTests: XCTestCase {
     
@@ -25,11 +25,8 @@ class netkitTests: XCTestCase {
         let request = Request()
         request.urlString = "http://apple.com"
         request.headers = ["accept":"text/html"]
-        request.start { (object, httpResponse, error) -> Void in
-            
-            if let html = object as? String {
-                XCTAssert(html.containsString("<html"))
-            }
+        request.start { (html: String?, response, error) in
+           XCTAssert(html!.contains("<html"))
         }
         
     }
@@ -38,10 +35,10 @@ class netkitTests: XCTestCase {
         let request = Request()
         request.urlString = "https://www-a.yellqatest.com/static/image/26bac63a-bc5a-4e7c-aec2-9c837d034f17_image_jpeg"
         request.headers = ["accept":"image/*"]
-        request.urlComponents.addQueryItems([NSURLQueryItem(name: "t", value: "tr/w:238/h:178/q:70")])
-        request.start { (object, httpResponse, error) -> Void in
+        request.urlBuilder.add([URLQueryItem(name: "t", value: "tr/w:238/h:178/q:70")])
+        request.start { (image: UIImage?, httpResponse, error) -> Void in
             
-            if let image = object as? UIImage {
+            if let image = image {
                 XCTAssert(image.size.width <= 238 && image.size.height == 178)
             }
         }
@@ -50,56 +47,47 @@ class netkitTests: XCTestCase {
     
     
     func testGeocoding() {
-        class Provider : IntentProvider, IntentConfigureRequest {
+        
+        class Provider : EndpointSession, EndpointConfiguration {
             
-            func sessionCreatedForIntentNamed(name: String) -> NSURLSession {
-                let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
-                return NSURLSession(configuration: configuration)
+            var identifier = "test"
+            
+            func session(forRequest request: Request?, flags: Plist?) -> URLSession {
+                let configuration = URLSessionConfiguration.default
+                return URLSession(configuration: configuration)
             }
             
-            func configureRequest(request: Request, intent: Intent, flags: [String:Any]?) throws {
+            func configure(request: Request, flags: Plist?) throws {
                 if (request.headers["accept"] == nil) {
-                    request.addHeaders(["accept":"application/json"])
+                    request.add(headers: ["accept":"application/json"])
                 }
                 
-                request.buildUrl { (components: NSURLComponents) -> Void in
-                    components.scheme = "https"
-                    components.host = "maps.googleapis.com"
-                    let userPath = components.path!
-                    let prefix = userPath.hasPrefix("/") ? "" : "/"
-                    components.path = "/maps/api\(prefix)\(userPath)/json"
-                }
+                request.urlBuilder.scheme = "https"
+                request.urlBuilder.host = "maps.googleapis.com"
+                let userPath = request.urlBuilder.path
+                let prefix = userPath.hasPrefix("/") ? "" : "/"
+                request.urlBuilder.path = "/maps/api\(prefix)\(userPath)/json"
             }
             
         }
         
         let provider = Provider()
-        let intent = Intent(name: "google", provider: provider)
         
-        let request = Request.requestWithIntent(intent)
-        request.urlComponents.path = "geocode"
-        request.urlComponents.addQueryItems([
-            NSURLQueryItem(name: "sensor", value: "true"),
-            NSURLQueryItem(name: "latlng", value: "51.48,-0.13")
+        let request = Request(endpoint: provider)
+        request.urlBuilder.path = "geocode"
+        request.urlBuilder.add([
+            URLQueryItem(name: "sensor", value: "true"),
+            URLQueryItem(name: "latlng", value: "51.48,-0.13")
             ])
-        request.start { (object, httpResponse, error) -> Void in
+        request.start { (json: [String:Any]?, httpResponse, error) -> Void in
             
-            XCTAssertNotNil(object)
-            if let json = object as? NSDictionary {
+            XCTAssertNotNil(json)
+            if let json = json {
                 XCTAssertNotNil(json["results"])
             }
         }
         
-        
-        
     }
     
-    
-    //    func testPerformanceExample() {
-    //        // This is an example of a performance test case.
-    //        self.measureBlock {
-    //            // Put the code you want to measure the time of here.
-    //        }
-    //    }
     
 }

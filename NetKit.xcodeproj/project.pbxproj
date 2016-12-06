@@ -7,20 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BB48CC6C1C4E3D2F00209210 /* MockRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB48CC6B1C4E3D2F00209210 /* MockRequest.swift */; };
 		BB7489D21C22D89E00CC9DBE /* NetKit.h in Headers */ = {isa = PBXBuildFile; fileRef = BB7489D11C22D89E00CC9DBE /* NetKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BB7489D91C22D89E00CC9DBE /* NetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB7489CE1C22D89E00CC9DBE /* NetKit.framework */; };
 		BB7489DE1C22D89E00CC9DBE /* NetKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489DD1C22D89E00CC9DBE /* NetKitTests.swift */; };
 		BB7489F11C22D93E00CC9DBE /* Exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = BB7489E81C22D93E00CC9DBE /* Exceptions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BB7489F21C22D93E00CC9DBE /* Exceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = BB7489E91C22D93E00CC9DBE /* Exceptions.m */; };
-		BB7489F31C22D93E00CC9DBE /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EA1C22D93E00CC9DBE /* Extensions.swift */; };
-		BB7489F41C22D93E00CC9DBE /* ImageMimePart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EB1C22D93E00CC9DBE /* ImageMimePart.swift */; };
-		BB7489F51C22D93E00CC9DBE /* Intent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EC1C22D93E00CC9DBE /* Intent.swift */; };
-		BB7489F61C22D93E00CC9DBE /* JSONMimePart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489ED1C22D93E00CC9DBE /* JSONMimePart.swift */; };
-		BB7489F71C22D93E00CC9DBE /* MimeMultipart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EE1C22D93E00CC9DBE /* MimeMultipart.swift */; };
-		BB7489F81C22D93E00CC9DBE /* MimePart.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489EF1C22D93E00CC9DBE /* MimePart.swift */; };
 		BB7489F91C22D93E00CC9DBE /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7489F01C22D93E00CC9DBE /* Request.swift */; };
 		BB7489FC1C22DDF500CC9DBE /* PublicHeaders.h in Headers */ = {isa = PBXBuildFile; fileRef = BB7489FB1C22DD1500CC9DBE /* PublicHeaders.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BB8137AF1DEF1CC1003A00D7 /* Mime.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB8137AE1DEF1CC1003A00D7 /* Mime.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,7 +28,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		BB48CC6B1C4E3D2F00209210 /* MockRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockRequest.swift; sourceTree = "<group>"; };
 		BB7489CE1C22D89E00CC9DBE /* NetKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NetKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB7489D11C22D89E00CC9DBE /* NetKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetKit.h; sourceTree = "<group>"; };
 		BB7489D31C22D89E00CC9DBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -43,14 +36,9 @@
 		BB7489DF1C22D89E00CC9DBE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB7489E81C22D93E00CC9DBE /* Exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exceptions.h; sourceTree = "<group>"; };
 		BB7489E91C22D93E00CC9DBE /* Exceptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Exceptions.m; sourceTree = "<group>"; };
-		BB7489EA1C22D93E00CC9DBE /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		BB7489EB1C22D93E00CC9DBE /* ImageMimePart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageMimePart.swift; sourceTree = "<group>"; };
-		BB7489EC1C22D93E00CC9DBE /* Intent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Intent.swift; sourceTree = "<group>"; };
-		BB7489ED1C22D93E00CC9DBE /* JSONMimePart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONMimePart.swift; sourceTree = "<group>"; };
-		BB7489EE1C22D93E00CC9DBE /* MimeMultipart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimeMultipart.swift; sourceTree = "<group>"; };
-		BB7489EF1C22D93E00CC9DBE /* MimePart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimePart.swift; sourceTree = "<group>"; };
 		BB7489F01C22D93E00CC9DBE /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		BB7489FB1C22DD1500CC9DBE /* PublicHeaders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PublicHeaders.h; sourceTree = "<group>"; };
+		BB8137AE1DEF1CC1003A00D7 /* Mime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mime.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,13 +84,7 @@
 				BB7489D11C22D89E00CC9DBE /* NetKit.h */,
 				BB7489D31C22D89E00CC9DBE /* Info.plist */,
 				BB7489F01C22D93E00CC9DBE /* Request.swift */,
-				BB48CC6B1C4E3D2F00209210 /* MockRequest.swift */,
-				BB7489EC1C22D93E00CC9DBE /* Intent.swift */,
-				BB7489EB1C22D93E00CC9DBE /* ImageMimePart.swift */,
-				BB7489ED1C22D93E00CC9DBE /* JSONMimePart.swift */,
-				BB7489EE1C22D93E00CC9DBE /* MimeMultipart.swift */,
-				BB7489EF1C22D93E00CC9DBE /* MimePart.swift */,
-				BB7489EA1C22D93E00CC9DBE /* Extensions.swift */,
+				BB8137AE1DEF1CC1003A00D7 /* Mime.swift */,
 				BB7489E81C22D93E00CC9DBE /* Exceptions.h */,
 				BB7489E91C22D93E00CC9DBE /* Exceptions.m */,
 				BB7489FB1C22DD1500CC9DBE /* PublicHeaders.h */,
@@ -230,15 +212,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB8137AF1DEF1CC1003A00D7 /* Mime.swift in Sources */,
 				BB7489F21C22D93E00CC9DBE /* Exceptions.m in Sources */,
 				BB7489F91C22D93E00CC9DBE /* Request.swift in Sources */,
-				BB48CC6C1C4E3D2F00209210 /* MockRequest.swift in Sources */,
-				BB7489F81C22D93E00CC9DBE /* MimePart.swift in Sources */,
-				BB7489F51C22D93E00CC9DBE /* Intent.swift in Sources */,
-				BB7489F31C22D93E00CC9DBE /* Extensions.swift in Sources */,
-				BB7489F41C22D93E00CC9DBE /* ImageMimePart.swift in Sources */,
-				BB7489F71C22D93E00CC9DBE /* MimeMultipart.swift in Sources */,
-				BB7489F61C22D93E00CC9DBE /* JSONMimePart.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,6 +273,7 @@
 				OTHER_SWIFT_FLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -368,6 +345,7 @@
 				OTHER_SWIFT_FLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -439,6 +417,7 @@
 				OTHER_SWIFT_FLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -518,6 +497,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -560,6 +540,7 @@
 				OTHER_SWIFT_FLAGS = "";
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
