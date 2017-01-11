@@ -8,10 +8,6 @@
 
 import UIKit
 
-let NetKitVersionNumber: Double = 2.0
-let NetKitVersionString = "2.0".cString(using: String.Encoding.utf8)
-
-
 private typealias Queue = DispatchQueue
 public typealias Plist = [String:Any]
 
@@ -51,7 +47,7 @@ public protocol ViewControllerSession: class {
 public protocol MockManaging {
     var folderKey: String { get set }
     var mockEnabled: Bool { get set }
-    func loadData(forKey key: String, completion: (Data?, HTTPURLResponse?, Error?) -> Void)
+    func loadData(forKey key: String, url: URL, completion: (Data?, HTTPURLResponse?, Error?) -> Void)
 }
 
 public protocol MockRecording: MockManaging {
@@ -332,10 +328,13 @@ extension Request {
         
         if mockManager == nil, let endpoint = self.endpoint as? EndpointMockManager {
             mockManager = endpoint.mockManager(forRequest: self, flags: flags)
+            if let configurator = endpoint as? EndpointConfiguration {
+                try? configurator.configure(request: self, flags: flags)
+            }
         }
         
-        if let manager = mockManager, let key = apiMockKey, manager.mockEnabled || mockEnabled {
-            manager.loadData(forKey: key) { (data, response, error) in
+        if let manager = mockManager, let key = apiMockKey, let url = urlBuilder.url, manager.mockEnabled || mockEnabled {
+            manager.loadData(forKey: key, url: url) { (data, response, error) in
                 self.logRequest(mock: true)
                 self.parse(data: data, urlResponse: response, error: error, mock: true, completion: completion)
             }
