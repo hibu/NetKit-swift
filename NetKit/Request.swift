@@ -14,6 +14,30 @@ public typealias Plist = [String:Any]
 public let RequestDidStartNotification = NSNotification.Name("NetKitRequestDidStartNotification")
 public let RequestDidEndNotification = NSNotification.Name("NetKitRequestDidEndNotification")
 
+public struct ErrorString: Error, ExpressibleByStringLiteral {
+
+    public typealias UnicodeScalarLiteralType = StringLiteralType
+    public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
+    
+    public let description: String
+    
+    public init(extendedGraphemeClusterLiteral value: ExtendedGraphemeClusterLiteralType) {
+        description = value
+    }
+    
+    public init(unicodeScalarLiteral value: UnicodeScalarLiteralType) {
+        description = "\(value)"
+    }
+
+    public init(stringLiteral value: StringLiteralType) {
+        description = value
+    }
+    
+    public init(_ value: String) {
+        description = value
+    }
+}
+
 public enum HTTPMethod: String {
     case get = "GET"
     case post = "POST"
@@ -121,8 +145,21 @@ public enum Result<T> {
         self = .failure(error)
     }
     
+    public init(error: ErrorString) {
+        self = .failure(error)
+    }
+    
     public init(response: HTTPURLResponse) {
         self = .issue(response)
+    }
+    
+    public init?(response: HTTPURLResponse?, error: Error?) {
+        if let response = response, error == nil {
+            self = .issue(response)
+        } else if let error = error, response == nil {
+            self = .failure(error)
+        }
+        return nil
     }
 
     public init(_ f: @autoclosure () throws -> T) {
@@ -137,13 +174,28 @@ public enum Result<T> {
         }
     }
     
-    public func flatMap<U>(_ transform: (T) -> Result<U>) -> Result<U> {
+    public func map<U>(_ transform: (T) -> Result<U>) -> Result<U> {
         switch self {
         case .success(let value): return transform(value)
         case .issue(let response): return .issue(response)
         case .failure(let error): return .failure(error)
         }
     }
+    
+    public func flatMap<U>(_ transform: (T) -> U?) -> Result<U> {
+        switch self {
+        case .success(let value):
+            if let newValue = transform(value) {
+                return .success(newValue)
+            }
+            return Result<U>(error: "Couldn't transform value")
+        case .issue(let response):
+            return .issue(response)
+        case .failure(let error):
+            return .failure(error)
+        }
+    }
+
     
     @discardableResult public func withSuccess(closure: (T) -> Void) -> Result<T> {
         switch self {
@@ -303,7 +355,7 @@ extension Request {
     
     public func begin<T>(queue: DispatchQueue = Queue.main, result: @escaping (Result<T>) -> Void) {
         self.start(queue: queue) { (value: T?, response, error) in
-            if let value = value, let response = response, 200...201 ~= response.statusCode {
+            if let value = value, let response = response, 200..<300 ~= response.statusCode {
                 result(Result(value: value))
             } else if let response = response {
                 result(Result(response: response))
