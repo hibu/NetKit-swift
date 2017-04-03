@@ -778,7 +778,7 @@ extension Request : CustomStringConvertible {
 
 extension Request : CustomDebugStringConvertible {
     public var debugDescription : String {
-        return "\(type(of: self)) #\(uid) (\(Unmanaged.passUnretained(self).toOpaque())) - \(url)"
+        return "\(type(of: self)) #\(uid) (\(Unmanaged.passUnretained(self).toOpaque())) - \(String(describing: url))"
     }
 }
 
