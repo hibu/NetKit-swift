@@ -240,6 +240,7 @@ open class Request {
     public var mockManager: MockManaging?
     public var mockEnabled = false
     public var apiMockKey: String?
+    public var successRange = 200..<300
     
     public fileprivate(set) var endpoint: Endpoint?
     public fileprivate(set) var session: URLSession
@@ -355,7 +356,7 @@ extension Request {
     
     public func begin<T>(queue: DispatchQueue = Queue.main, result: @escaping (Result<T>) -> Void) {
         self.start(queue: queue) { (value: T?, response, error) in
-            if let value = value, let response = response, 200..<300 ~= response.statusCode {
+            if let value = value, let response = response, self.successRange ~= response.statusCode {
                 result(Result(value: value))
             } else if let response = response {
                 result(Result(response: response))
