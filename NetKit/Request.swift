@@ -235,7 +235,7 @@ open class Request {
     public var body: MimeConverter?
     public var timeout: TimeInterval?
     public var logRawResponseData: Bool = false
-    public var notify = false
+    public static var notify = false
     public weak var viewController: ViewControllerSession?
     public var mockManager: MockManaging?
     public var mockEnabled = false
@@ -639,7 +639,7 @@ extension Request {
 extension Request {
     
     fileprivate func post(notificationNamed name: Notification.Name) {
-        if notify {
+        if Request.notify {
             Queue.main.async {
                 NotificationCenter.default.post(name: name, object:self)
             }
