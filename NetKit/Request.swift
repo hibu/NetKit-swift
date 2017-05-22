@@ -556,6 +556,7 @@ extension Request {
         
         if self.upload {
             self.taskGroup.leave()
+            post(notificationNamed: RequestDidEndNotification)
         }
     }
     
@@ -641,7 +642,7 @@ extension Request {
     fileprivate func post(notificationNamed name: Notification.Name) {
         if Request.notify {
             Queue.main.async {
-                NotificationCenter.default.post(name: name, object:self)
+                NotificationCenter.default.post(name: name, object:self, userInfo: ["url": self.urlString ?? "unknown"])
             }
         }
     }
