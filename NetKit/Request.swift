@@ -107,6 +107,10 @@ public protocol EndpointResponseParsing: Endpoint {
     func parse(object: inout Any?, data: inout Data?, request: Request, response: inout HTTPURLResponse?, error: inout Error?, flags: Plist?, completion: @escaping (Any?, HTTPURLResponse?, Error?) -> Void) -> Bool
 }
 
+public protocol EndpointErrorReasonStringExtracting: Endpoint {
+    func extract(json: [AnyHashable:Any?]) -> String?
+}
+
 @objc public protocol BackgroundURLSession {}
 
 public extension BackgroundURLSession {
@@ -358,6 +362,19 @@ extension Request {
         self.start(queue: queue) { (value: T?, response, error) in
             if let value = value, let response = response, self.successRange ~= response.statusCode {
                 result(Result(value: value))
+            } else if let value = value, let response = response,
+                let endpoint = self.endpoint as? EndpointErrorReasonStringExtracting,
+                type(of: value) == JSONDictionary.self {
+                
+                let json = value as! JSONDictionary
+                var headers = response.allHeaderFields
+                
+                if let reason = endpoint.extract(json: json) {
+                    headers["reason"] = reason
+                }
+                
+                let newResponse = HTTPURLResponse(url: response.url!, statusCode: response.statusCode, httpVersion: "HTTP/1.1", headerFields: headers as? [String : String])!
+                result(Result(response: newResponse))
             } else if let response = response {
                 result(Result(response: response))
             } else if let error = error {
@@ -823,6 +840,15 @@ public extension URLComponents {
         } else {
             queryItems = items
         }
+    }
+}
+
+public extension HTTPURLResponse {
+    var reason: String? {
+        if let reason = allHeaderFields["reason"] as? String {
+            return reason.uppercased()
+        }
+        return nil
     }
 }
 
