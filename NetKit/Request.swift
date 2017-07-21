@@ -712,7 +712,7 @@ extension Request {
         #if DEBUG
             let desc = sessionDescription()
             
-            Queue.main.async {
+            if true {
                 DLog("\n")
                 DLog("****** \(mock ? "[MOCKED] " : "")\(self.method.rawValue.uppercased()) REQUEST #\(self.uid) \(desc) ******")
                 DLog(NSString(format:"URL = %@", self.urlString == nil ? "" : self.urlString!))
@@ -733,7 +733,7 @@ extension Request {
     open func logResponse(object: Any?, data: Data?, httpResponse: HTTPURLResponse?, error: Error?, mock: Bool = false) {
         
         #if DEBUG
-            Queue.main.async {
+            if true {
                 var logRaw = false
                 let headers = httpResponse?.allHeaderFields as? [String:String]
                 var statusStr = ""
@@ -826,8 +826,10 @@ public func DLog<T>(_ message: T, file: String = #file, function: String = #func
                 prefix = prefix + " \(line)"
             }
             
-            Queue.main.async {
-                print("\(prefix): " + text, terminator: "\n")
+            if Thread.isMainThread {
+                print("\(prefix): " + text)
+            } else {
+                Queue.main.sync { print("\(prefix): " + text) }
             }
         }
     #endif
