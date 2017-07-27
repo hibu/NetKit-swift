@@ -149,7 +149,7 @@ public struct ImageMimeConverter: MimeConverter {
     }
     
     public static func convert(data: Data) throws -> Any {
-        if let image = UIImage(data: data, scale:0) {
+        if let image = UIImage(data: data, scale:UIScreen.main.scale) {
             return image
         } else {
             throw ImageMimeConverterError.invalidData
