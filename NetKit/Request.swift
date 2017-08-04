@@ -230,8 +230,6 @@ open class Request {
     private static var gUID = 1
     fileprivate static let lock = Queue(label: "com.hibu.NetKit.Request.lock")
     
-    public static var userAgent: String?
-    
     public let method: HTTPMethod
     public let uid: Int
     public var flags: [String:Any]?
@@ -351,10 +349,6 @@ open class Request {
         
         for (header, value) in self.headers {
             urlRequest.setValue("\(value)", forHTTPHeaderField:header)
-        }
-        
-        if let userAgent = Request.userAgent {
-            urlRequest.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         }
         
         return urlRequest
