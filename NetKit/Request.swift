@@ -79,11 +79,23 @@ public protocol MockRecording: MockManaging {
     func store(data: Data, response: HTTPURLResponse, forKey key: String)
 }
 
+
+/// Endpoint protocols allow you to define many endpoints
+/// (one for calling google apis, one for facebook apis, one for Yell apis, one for image downloads)
 public protocol Endpoint: class {
+    /// defines a string used to identify your endpoint
     var identifier: String { get }
 }
 
+/// Your Endpoint should conform to this protocol if it wants to have its own URLSession.
+/// If not implemented, all Request for that endpoint will use the shared URLSession.
 public protocol EndpointSession: Endpoint {
+    /// Called to let the endpoint create a URLSession
+    ///
+    /// - Parameters:
+    ///   - request: a Request instance
+    ///   - flags: a dictionary of flags that your enpoint understands
+    /// - Returns: a URLSession object created by your Endpoint
     func session(forRequest request: Request?, flags: Plist?) -> URLSession
 }
 
@@ -91,23 +103,70 @@ public protocol EndpointMockManager: Endpoint {
     func mockManager(forRequest request: Request, flags: Plist?) -> MockManaging?
 }
 
+/// Your Endpoint should conform to this protocol if it wants to configure new Request instances.
 public protocol EndpointConfiguration: Endpoint {
+    /// called to give the endpoint a chance to configure a request when created
+    ///
+    /// - Parameters:
+    ///   - request: a Request instance
+    ///   - flags: a dictionary of flags that your enpoint understands
     func configure(request: Request, flags: Plist?) throws
 }
 
+/// Your Endpoint should conform to this protocol if it wants to control when a Request can access the network.
 public protocol EndpointControl: Endpoint {
-    func control(request: Request, flags: Plist?, completion: @escaping (Bool, (() -> Void)?) -> Void)
+    /// gives control to the Endpoint to decide when to start the networking
+    /// It could be used to implement a throttled queue.
+    /// executing the completion block starts the networking
+    ///
+    /// - Parameters:
+    ///   - request: a Request instance
+    ///   - flags: a dictionary of flags that your enpoint understands
+    ///   - completion: a closure you execute when you allow the request to start networking
+    ///   - proceed: currently ignored
+    ///   - networkingCompleted: will be called when the networking has finished (a throttled queue would start the next request in the queue)
+    func control(request: Request, flags: Plist?, completion: @escaping (_ proceed: Bool, _ networkingCompleted: (() -> Void)?) -> Void)
 }
 
+/// Your Endpoint should conform to this protocol if it wants to be able to configure the underlying URLRequest.
 public protocol EndpointURLRequestConfiguration: Endpoint {
+    /// called to let the Endpoint configure the URLRequest. Can be used to add security that the calling code will never see.
+    ///
+    /// - Parameters:
+    ///   - request: a Request instance
+    ///   - flags: a dictionary of flags that your enpoint understands
+    /// - Returns: a URLRequest object configured by your Endpoint
     func configure(request: Request, urlRequest: URLRequest, flags: Plist?) throws -> URLRequest
 }
 
+/// Your Endpoint should conform to this protocol if it wants to be able to modify the results of a Request.
 public protocol EndpointResponseParsing: Endpoint {
-    func parse(object: inout Any?, data: inout Data?, request: Request, response: inout HTTPURLResponse?, error: inout Error?, flags: Plist?, completion: @escaping (Any?, HTTPURLResponse?, Error?) -> Void) -> Bool
+    /// called after the request has finished networking, but before it presents the result to the caller
+    /// gives a chance to the Endpoint to change/replace any of the inout parameters
+    ///
+    /// - Parameters:
+    ///   - object: an object created from the data
+    ///   - data: the data body of the response
+    ///   - request: a Request instance
+    ///   - response: the response object
+    ///   - error: an error
+    ///   - flags: a dictionary of flags that your enpoint understands
+    ///   - completion: a closure to be called in case this method does async work and returns false
+    ///   - returnedObject: an object to replace the one passed in
+    ///   - returnedResponse: a response to replace the one passed in
+    ///   - returnedError: an error to replace the one passed in
+    /// - Returns: true is the method can do its work before returning, false if it needs to work async( and execute the completion closure when done)
+    func parse(object: inout Any?, data: inout Data?, request: Request, response: inout HTTPURLResponse?, error: inout Error?, flags: Plist?, completion: @escaping (_ returnedObject: Any?, _ returnedResponse: HTTPURLResponse?, _ returnedError: Error?) -> Void) -> Bool
 }
 
+/// Your Endpoint should conform to this protocol if it wants to be able to extract Error strings from the json.
 public protocol EndpointErrorReasonStringExtracting: Endpoint {
+    /// gives the endpoint the ability to extract error strings from the json body
+    /// stores this error string in the headers with the key "reason"
+    ///
+    /// - Parameters:
+    ///   - json: a json dictionary
+    /// - Returns: an optional Error String
     func extract(json: [AnyHashable:Any?]) -> String?
 }
 
@@ -226,6 +285,28 @@ public enum Result<T> {
     }
 }
 
+/// the NetKit request class
+/// Use an instance of this class to make network requests.
+///
+/// Typical usage:
+/// ```
+///  let request = NetKit.Request(endpoint: searchEndpoint)
+///  request.urlBuilder.path = "listings/\(id)"
+///  request.begin() { (result: Result<JSONDictionary>) in
+///
+///      let result = result.map { (json) -> Result<Listing> in
+///          if let listings: [JSONDictionary] = "listings"  <~~ json,
+///              let first = listings.first,
+///              let listing = Listing(json: first) {
+///              return NetKit.Result(value: listing)
+///          }
+///          return NetKit.Result(error: SearchError.malformedJSON)
+///      }
+///
+///      completion(result)
+///  }
+///
+///```
 open class Request {
     private static var gUID = 1
     fileprivate static let lock = Queue(label: "com.hibu.NetKit.Request.lock")
@@ -248,6 +329,7 @@ open class Request {
     
     public fileprivate(set) var endpoint: Endpoint?
     public fileprivate(set) var session: URLSession
+    public fileprivate(set) var started = false
     public fileprivate(set) var executing = false
     public fileprivate(set) var cancelled = false
     
@@ -386,9 +468,12 @@ extension Request {
     }
     
     public func start<T>(queue: DispatchQueue = Queue.main, completion: @escaping (T?, HTTPURLResponse?, Error?) -> Void) {
-        if executing {
+        
+        if started || executing {
             fatalError("start called on a request already started")
         }
+
+        started = true
         
         #if !DEBUG
             quiet = true
@@ -421,9 +506,11 @@ extension Request {
     }
     
     public func startUpload(task: @escaping (URLSessionUploadTask) -> Void) {
-        if executing {
+        if started || executing {
             fatalError("start called on a request already started")
         }
+        
+        started = true
         
         taskGroup.enter()
         upload = true
